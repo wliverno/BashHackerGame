@@ -157,4 +157,22 @@ describe('levels', () => {
     expect(level.subSteps[2].winCondition('cp reports/staffing.txt evidence/', '', { readFile: () => null })).toBe(false);
   });
 
+  test('level 8 win conditions check mv and rm', () => {
+    const level = levels[7];
+
+    // Step 0: budget moved to classified (there), gone from evidence
+    const movedFs = { readFile: (p) => p === 'classified/budget.txt' ? 'data' : null };
+    const notMovedFs = { readFile: (p) => p === 'evidence/budget.txt' ? 'data' : null };
+    expect(level.subSteps[0].winCondition('mv evidence/budget.txt classified/', '', movedFs)).toBe(true);
+    expect(level.subSteps[0].winCondition('mv evidence/budget.txt classified/', '', notMovedFs)).toBe(false);
+
+    // Step 1: temp.log must be gone
+    expect(level.subSteps[1].winCondition('rm temp.log', '', { readFile: () => null })).toBe(true);
+    expect(level.subSteps[1].winCondition('rm temp.log', '', { readFile: () => 'still here' })).toBe(false);
+
+    // Step 2: old_logs directory must be gone
+    expect(level.subSteps[2].winCondition('rm -r old_logs', '', { listDir: () => null })).toBe(true);
+    expect(level.subSteps[2].winCondition('rm -r old_logs', '', { listDir: () => [] })).toBe(false);
+  });
+
 });

@@ -383,4 +383,59 @@ A good analyst keeps their evidence in one place.`,
       },
     ],
   },
+  {
+    id: 8,
+    chapter: 3,
+    title: 'Covering Tracks',
+    story: `Footprints everywhere. If someone checks these directories, they'll know you were here.
+
+mv moves (or renames) files. rm removes them entirely.
+
+Be careful with rm — there's no undo.`,
+    filesystem: {
+      home: {
+        analyst: {
+          evidence: {
+            'budget.txt': 'Project Helios: $2.4M',
+            'staffing.txt': 'J. Martinez — Helios lead',
+          },
+          classified: {},
+          'temp.log': 'debug output from 02:14 — analyst session',
+          old_logs: {
+            'access.log': 'Feb 03 22:41 analyst login',
+            'auth.log': 'Feb 03 22:41 ssh auth success',
+          },
+        },
+      },
+    },
+    startDir: '/home/analyst',
+    subSteps: [
+      {
+        objective: 'Move the budget report into the `classified` directory.',
+        hints: [
+          'mv source destination — works like cp but removes the original',
+          'Try: mv evidence/budget.txt classified/',
+        ],
+        winCondition: (cmd, output, fs) => {
+          return fs.readFile('classified/budget.txt') !== null && fs.readFile('evidence/budget.txt') === null;
+        },
+      },
+      {
+        objective: "Delete the temp log — it's evidence you were here.",
+        hints: [
+          'rm removes a file permanently',
+          'Try: rm temp.log',
+        ],
+        winCondition: (cmd, output, fs) => fs.readFile('temp.log') === null,
+      },
+      {
+        objective: 'Delete the entire old_logs directory.',
+        hints: [
+          'rm needs -r to remove directories (and everything inside)',
+          'Try: rm -r old_logs',
+        ],
+        winCondition: (cmd, output, fs) => fs.listDir('old_logs') === null,
+      },
+    ],
+  },
 ];
