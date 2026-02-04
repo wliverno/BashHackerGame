@@ -32,13 +32,23 @@ function printLevelHeader(term, levelIndex, title) {
 function printWinScreen(term) {
   term.echo('');
   term.echo('[[;#0f0;]═══════════════════════════════════════]');
-  term.echo('[[;#0f0;]      CHAPTER 1 COMPLETE!              ]');
+  term.echo('[[;#0f0;]      CHAPTER 2 COMPLETE!              ]');
   term.echo('[[;#0f0;]═══════════════════════════════════════]');
   term.echo('');
-  term.echo("[[;#0ff;]You've mastered the basics of Linux navigation.]");
-  term.echo('[[;#0ff;]The server is at your fingertips.]');
+  term.echo("[[;#0ff;]You can read, write, and modify files at will.]");
+  term.echo('[[;#0ff;]The server holds no secrets from you now.]');
   term.echo('');
   term.echo('[[;#ff0;]More chapters coming soon...]');
+  term.echo('');
+}
+
+function printChapterComplete(term, chapter) {
+  term.echo('');
+  term.echo('[[;#0f0;]═══════════════════════════════════════]');
+  term.echo(`[[;#0f0;]  CHAPTER ${chapter} COMPLETE!                ]`);
+  term.echo('[[;#0f0;]═══════════════════════════════════════]');
+  term.echo('');
+  term.echo(`[[;#0ff;]Chapter ${chapter} done. The next chapter awaits...]`);
   term.echo('');
 }
 
@@ -69,6 +79,10 @@ $(function() {
       if (result.won) {
         printWinScreen(this);
         return;
+      }
+
+      if (result.chapterComplete) {
+        printChapterComplete(this, result.completedChapter);
       }
 
       if (result.newLevel) {
