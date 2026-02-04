@@ -333,4 +333,54 @@ echo "new line" >> file.txt adds to the end of file.txt.`,
       },
     ],
   },
+  {
+    id: 7,
+    chapter: 3,
+    title: 'Organizing the Evidence',
+    story: `Your notes are scattered across the server. Time to get organized.
+
+mkdir creates new directories. cp copies files.
+
+A good analyst keeps their evidence in one place.`,
+    filesystem: {
+      home: {
+        analyst: {
+          reports: {
+            'budget.txt': 'Project Helios: $2.4M approved',
+            'staffing.txt': 'J. Martinez — Helios lead',
+          },
+          internal: {
+            'memo.txt': 'All Helios personnel: report to Lab 3.',
+          },
+        },
+      },
+    },
+    startDir: '/home/analyst',
+    subSteps: [
+      {
+        objective: 'Create a directory called `evidence` to hold your findings.',
+        hints: [
+          'mkdir creates a new directory',
+          'Try: mkdir evidence',
+        ],
+        winCondition: (cmd, output, fs) => fs.listDir('evidence') !== null,
+      },
+      {
+        objective: 'Copy the budget report into your evidence directory.',
+        hints: [
+          'cp source destination — if dest is a directory, the file goes inside it',
+          'Try: cp reports/budget.txt evidence/',
+        ],
+        winCondition: (cmd, output, fs) => fs.readFile('evidence/budget.txt') !== null,
+      },
+      {
+        objective: 'Copy the staffing report into evidence as well.',
+        hints: [
+          'Same idea — different source file',
+          'Try: cp reports/staffing.txt evidence/',
+        ],
+        winCondition: (cmd, output, fs) => fs.readFile('evidence/staffing.txt') !== null,
+      },
+    ],
+  },
 ];

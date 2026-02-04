@@ -141,4 +141,20 @@ describe('levels', () => {
     expect(level.subSteps[2].winCondition('ls', '', {})).toBe(false);
   });
 
+  test('level 7 win conditions check mkdir and cp', () => {
+    const level = levels[6];
+
+    // Step 0: evidence directory must exist
+    expect(level.subSteps[0].winCondition('mkdir evidence', '', { listDir: (p) => p === 'evidence' ? [] : null })).toBe(true);
+    expect(level.subSteps[0].winCondition('mkdir evidence', '', { listDir: () => null })).toBe(false);
+
+    // Step 1: evidence/budget.txt must exist
+    expect(level.subSteps[1].winCondition('cp reports/budget.txt evidence/', '', { readFile: (p) => p === 'evidence/budget.txt' ? 'data' : null })).toBe(true);
+    expect(level.subSteps[1].winCondition('cp reports/budget.txt evidence/', '', { readFile: () => null })).toBe(false);
+
+    // Step 2: evidence/staffing.txt must exist
+    expect(level.subSteps[2].winCondition('cp reports/staffing.txt evidence/', '', { readFile: (p) => p === 'evidence/staffing.txt' ? 'data' : null })).toBe(true);
+    expect(level.subSteps[2].winCondition('cp reports/staffing.txt evidence/', '', { readFile: () => null })).toBe(false);
+  });
+
 });
