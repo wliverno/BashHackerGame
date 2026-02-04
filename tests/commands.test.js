@@ -203,3 +203,180 @@ describe('clear', () => {
     expect(result.exitCode).toBe(0);
   });
 });
+
+describe('mkdir', () => {
+  let fs;
+
+  beforeEach(() => {
+    fs = createFilesystem({ home: { analyst: {} } });
+    fs.cwd = '/home/analyst';
+  });
+
+  test('creates a directory', () => {
+    const result = commands.mkdir(['newdir'], '', fs);
+    expect(result.exitCode).toBe(0);
+    expect(fs.listDir('newdir')).toEqual([]);
+  });
+
+  test('returns error for existing path', () => {
+    fs.createDir('existing');
+    const result = commands.mkdir(['existing'], '', fs);
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain('existing');
+  });
+
+  test('returns error with no args', () => {
+    const result = commands.mkdir([], '', fs);
+    expect(result.exitCode).toBe(1);
+  });
+});
+
+describe('cp', () => {
+  let fs;
+
+  beforeEach(() => {
+    fs = createFilesystem({
+      home: {
+        analyst: {
+          'source.txt': 'hello',
+          dest: {},
+          srcdir: { 'inner.txt': 'nested' },
+        },
+      },
+    });
+    fs.cwd = '/home/analyst';
+  });
+
+  test('copies file to new name', () => {
+    const result = commands.cp(['source.txt', 'copy.txt'], '', fs);
+    expect(result.exitCode).toBe(0);
+    expect(fs.readFile('copy.txt')).toBe('hello');
+  });
+
+  test('copies file into existing directory', () => {
+    const result = commands.cp(['source.txt', 'dest'], '', fs);
+    expect(result.exitCode).toBe(0);
+    expect(fs.readFile('dest/source.txt')).toBe('hello');
+  });
+
+  test('returns error without -r for directory source', () => {
+    const result = commands.cp(['srcdir', 'dest'], '', fs);
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain('-r');
+  });
+
+  test('copies directory recursively with -r', () => {
+    const result = commands.cp(['-r', 'srcdir', 'srcdir_copy'], '', fs);
+    expect(result.exitCode).toBe(0);
+    expect(fs.readFile('srcdir_copy/inner.txt')).toBe('nested');
+  });
+
+  test('returns error for non-existent source', () => {
+    const result = commands.cp(['nope.txt', 'dest'], '', fs);
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain('No such file or directory');
+  });
+});
+
+describe('mv', () => {
+  let fs;
+
+  beforeEach(() => {
+    fs = createFilesystem({
+      home: {
+        analyst: {
+          'file.txt': 'content',
+          target: {},
+        },
+      },
+    });
+    fs.cwd = '/home/analyst';
+  });
+
+  test('renames a file', () => {
+    const result = commands.mv(['file.txt', 'renamed.txt'], '', fs);
+    expect(result.exitCode).toBe(0);
+    expect(fs.readFile('renamed.txt')).toBe('content');
+    expect(fs.readFile('file.txt')).toBeNull();
+  });
+
+  test('moves file into existing directory', () => {
+    const result = commands.mv(['file.txt', 'target'], '', fs);
+    expect(result.exitCode).toBe(0);
+    expect(fs.readFile('target/file.txt')).toBe('content');
+    expect(fs.readFile('file.txt')).toBeNull();
+  });
+
+  test('returns error for non-existent source', () => {
+    const result = commands.mv(['nope.txt', 'target'], '', fs);
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain('No such file or directory');
+  });
+});
+
+describe('rm', () => {
+  let fs;
+
+  beforeEach(() => {
+    fs = createFilesystem({
+      home: {
+        analyst: {
+          'file.txt': 'content',
+          mydir: { 'inner.txt': 'nested' },
+        },
+      },
+    });
+    fs.cwd = '/home/analyst';
+  });
+
+  test('removes a file', () => {
+    const result = commands.rm(['file.txt'], '', fs);
+    expect(result.exitCode).toBe(0);
+    expect(fs.readFile('file.txt')).toBeNull();
+  });
+
+  test('returns error for directory without -r', () => {
+    const result = commands.rm(['mydir'], '', fs);
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain('Is a directory');
+  });
+
+  test('removes directory with -r', () => {
+    const result = commands.rm(['-r', 'mydir'], '', fs);
+    expect(result.exitCode).toBe(0);
+    expect(fs.listDir('mydir')).toBeNull();
+  });
+
+  test('-f silences error for non-existent file', () => {
+    const result = commands.rm(['-f', 'nope.txt'], '', fs);
+    expect(result.exitCode).toBe(0);
+  });
+});
+
+describe('chmod', () => {
+  let fs;
+
+  beforeEach(() => {
+    fs = createFilesystem({
+      home: { analyst: { 'script.sh': 'echo hi' } },
+    });
+    fs.cwd = '/home/analyst';
+  });
+
+  test('sets executable permission', () => {
+    const result = commands.chmod(['+x', 'script.sh'], '', fs);
+    expect(result.exitCode).toBe(0);
+    expect(fs.getPermissions('script.sh').has('x')).toBe(true);
+  });
+
+  test('returns error for non-existent file', () => {
+    const result = commands.chmod(['+x', 'nope.sh'], '', fs);
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain('No such file or directory');
+  });
+
+  test('returns error with no args', () => {
+    const result = commands.chmod([], '', fs);
+    expect(result.exitCode).toBe(1);
+  });
+});
