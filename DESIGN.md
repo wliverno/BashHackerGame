@@ -73,41 +73,50 @@ This sets the tone immediately — it feels like a real cluster login. The promp
 | 5 | 3 | `echo >` (file creation) | You need to leave a note for your contact on the inside. Write a specific message to a dead-drop file. |
 | 6 | 3 | `echo >>` (append) | Your contact needs more info appended to the dead-drop. Don't overwrite what's already there. |
 
-### Chapter 3: The Data Pipeline (pipes, wc, sort)
+### Chapter 3: Moving Pieces (mkdir, cp, mv, rm, chmod)
+*"You need to organize what you've found — and cover your tracks."*
+
+| Level | Sub-steps | What's Taught | Mission Flavor |
+|---|---|---|---|
+| 7 | 3 | `mkdir`, `cp` | Your evidence is scattered across directories. Create an organized folder and copy the key files there. |
+| 8 | 3 | `mv`, `rm` | Time to clean up. Move the originals somewhere safe, and delete the breadcrumbs you left behind. |
+| 9 | 3 | `chmod` | You found a shell script that could help — but it won't run. Figure out why and fix it. |
+
+### Chapter 4: The Data Pipeline (pipes, wc, sort)
 *"The server is full of noise. You need to filter signal from static."*
 
 | Level | Sub-steps | What's Taught | Mission Flavor |
 |---|---|---|---|
-| 7 | 3 | `\|` (basic pipe) | A user list is dumped to a file. Pipe it through another command to find active accounts. |
-| 8 | 3 | `wc`, `sort` | Count how many log entries match a pattern. Sort a list of IPs to find duplicates. |
-| 9 | 3 | Multi-pipe chains | Chain `cat \| sort \| wc` together. Nexus Corp's firewall rules are buried in noise — extract the one that's blocking public internet. |
+| 10 | 3 | `\|` (basic pipe) | A user list is dumped to a file. Pipe it through another command to find active accounts. |
+| 11 | 3 | `wc`, `sort` | Count how many log entries match a pattern. Sort a list of IPs to find duplicates. |
+| 12 | 3 | Multi-pipe chains | Chain `cat \| sort \| wc` together. Nexus Corp's firewall rules are buried in noise — extract the one that's blocking public internet. |
 
-### Chapter 4: Search & Filter (grep, head, tail)
+### Chapter 5: Search & Filter (grep, head, tail)
 *"You know the data is here. You just need to find it."*
 
 | Level | Sub-steps | What's Taught | Mission Flavor |
 |---|---|---|---|
-| 10 | 3 | `grep` (basic) | Search server logs for a specific IP address tied to the suppression campaign. |
-| 11 | 3 | `grep` with flags (`-i`, `-r`, `-n`) | Case-insensitive recursive search across `/var/log/`. Find all references to "project_nightfall". |
-| 12 | 3 | `head`, `tail` | A massive database dump exists. You don't need all of it — just the header and the last few entries. |
+| 13 | 3 | `grep` (basic) | Search server logs for a specific IP address tied to the suppression campaign. |
+| 14 | 3 | `grep` with flags (`-i`, `-r`, `-n`) | Case-insensitive recursive search across `/var/log/`. Find all references to "project_nightfall". |
+| 15 | 3 | `head`, `tail` | A massive database dump exists. You don't need all of it — just the header and the last few entries. |
 
-### Chapter 5: Deep Recon (find, ls flags)
+### Chapter 6: Deep Recon (find, ls flags, du, which)
 *"The interesting stuff is always hidden in the places no one looks."*
 
 | Level | Sub-steps | What's Taught | Mission Flavor |
 |---|---|---|---|
-| 13 | 3 | `ls -a` | Hidden files (dotfiles) in the sysadmin's home directory. Config files with credentials. |
-| 14 | 3 | `find` (basic) | A file called `credentials.db` exists somewhere on the server. Find it. |
-| 15 | 3 | `find` with flags (`-name`, `-type`, `-path`) | Locate all `.conf` files under `/etc/` that were modified recently. Nexus changed their firewall config — find the proof. |
+| 16 | 3 | `ls -a`, `which` | Hidden files (dotfiles) in the sysadmin's home directory. Config files with credentials. Use `which` to track down where a key tool is installed. |
+| 17 | 3 | `find` (basic), `du` | A file called `credentials.db` exists somewhere on the server. Find it. Then figure out what's eating your disk quota before you run out of space. |
+| 18 | 3 | `find` with flags (`-name`, `-type`, `-path`) | Locate all `.conf` files under `/etc/` that were modified recently. Nexus changed their firewall config — find the proof. |
 
-### Chapter 6: The Endgame (sed, complex pipelines)
+### Chapter 7: The Endgame (sed, complex pipelines)
 *"You have everything you need. Now you need to act on it."*
 
 | Level | Sub-steps | What's Taught | Mission Flavor |
 |---|---|---|---|
-| 16 | 3 | `sed` (basic s/old/new/) | A firewall rule file is corrupted — a key IP is wrong. Use `sed` to fix it in place. |
-| 17 | 3 | `sed` + pipes | The kill-switch script exists but references a wrong path. Pipe the file through `sed` to correct it, then write the output. |
-| 18 | 4 | Full pipeline (cat \| grep \| sed \| sort > output) | Final mission: extract, filter, transform, and write the data that will unlock public internet access. Game over screen. |
+| 19 | 3 | `sed` (basic s/old/new/) | A firewall rule file is corrupted — a key IP is wrong. Use `sed` to fix it in place. |
+| 20 | 3 | `sed` + pipes | The kill-switch script exists but references a wrong path. Pipe the file through `sed` to correct it, then write the output. |
+| 21 | 4 | Full pipeline (cat \| grep \| sed \| sort > output) | Final mission: extract, filter, transform, and write the data that will unlock public internet access. Game over screen. |
 
 ---
 
@@ -121,6 +130,17 @@ This sets the tone immediately — it feels like a real cluster login. The promp
 ### File I/O
 - `cat` — read files, multiple files
 - `echo` — with `>` (write) and `>>` (append) redirects
+
+### File Manipulation
+- `mkdir` — create directories
+- `cp` — copy files; `-r` for directories
+- `mv` — move or rename files
+- `rm` — remove files; `-r` for directories, `-f` to force — destructive!
+- `chmod` — change permissions (`+x`, `-x`, `+r`, etc.)
+
+### Utility
+- `du` — disk usage; `-sh` for human-readable summary of a path
+- `which` — show the installed path of a command
 
 ### Pipes & Filters
 - `|` — pipe chaining (stdout of left → stdin of right)
