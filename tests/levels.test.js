@@ -121,4 +121,24 @@ describe('levels', () => {
     expect(level.subSteps[2].winCondition('echo "new intel" > other.txt', '', {})).toBe(false);
   });
 
+
+  test('level 6 win conditions check append via >> and read-back', () => {
+    const level = levels[5];
+
+    // Step 0: output must include "Project Helios"
+    expect(level.subSteps[0].winCondition('cat dossier.txt', 'Investigation Log\n- Target: Project Helios', {})).toBe(true);
+    expect(level.subSteps[0].winCondition('cat dossier.txt', 'Nothing useful', {})).toBe(false);
+
+    // Step 1: must use >> on dossier.txt AND original content must still be in the file
+    const appendedFs = { readFile: () => 'Investigation Log\n- Target: Project Helios\n- New finding' };
+    const overwrittenFs = { readFile: () => '- New finding only' };
+    expect(level.subSteps[1].winCondition('echo "x" >> dossier.txt', '', appendedFs)).toBe(true);
+    expect(level.subSteps[1].winCondition('echo "x" > dossier.txt', '', appendedFs)).toBe(false);
+    expect(level.subSteps[1].winCondition('echo "x" >> dossier.txt', '', overwrittenFs)).toBe(false);
+
+    // Step 2: must cat dossier.txt
+    expect(level.subSteps[2].winCondition('cat dossier.txt', 'Investigation Log\n- stuff', {})).toBe(true);
+    expect(level.subSteps[2].winCondition('ls', '', {})).toBe(false);
+  });
+
 });

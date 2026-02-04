@@ -280,4 +280,57 @@ If the file already exists, > overwrites it completely.`,
       },
     ],
   },
+  {
+    id: 6,
+    chapter: 2,
+    title: 'Building the Dossier',
+    story: `You've been writing notes, but > keeps wiping them out.
+
+There's another redirect operator: >>.
+It appends to a file instead of overwriting.
+
+echo "new line" >> file.txt adds to the end of file.txt.`,
+    filesystem: {
+      home: {
+        analyst: {
+          'dossier.txt': 'Investigation Log\n- Server access: confirmed\n- Target: Project Helios\n',
+          reports: {
+            'budget.txt': 'Project Helios: $2.4M approved',
+          },
+        },
+      },
+    },
+    startDir: '/home/analyst',
+    subSteps: [
+      {
+        objective: 'Read the existing dossier.',
+        hints: [
+          'There is a file called dossier.txt right here',
+          'Try: cat dossier.txt',
+        ],
+        winCondition: (cmd, output, fs) => output.includes('Project Helios'),
+      },
+      {
+        objective: 'Append a new finding to the dossier using `>>`.',
+        hints: [
+          '>> adds to the end of a file without erasing it',
+          'Try: echo "- New finding: budget is $2.4M" >> dossier.txt',
+        ],
+        winCondition: (cmd, output, fs) => {
+          const content = fs.readFile('dossier.txt');
+          return cmd.includes('>> dossier.txt') && content && content.includes('Investigation Log');
+        },
+      },
+      {
+        objective: 'Read the dossier again to confirm your addition.',
+        hints: [
+          'cat it again — you should see both the original and your new line',
+          'Try: cat dossier.txt',
+        ],
+        winCondition: (cmd, output, fs) => {
+          return cmd.trim().startsWith('cat') && cmd.includes('dossier.txt');
+        },
+      },
+    ],
+  },
 ];
