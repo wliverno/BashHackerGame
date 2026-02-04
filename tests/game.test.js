@@ -48,6 +48,35 @@ describe('executePipeline', () => {
     expect(result.output).toContain('command not found');
     expect(result.exitCode).toBe(127);
   });
+
+  test('executes ./script when file is executable', () => {
+    const fs = createFilesystem({
+      home: { analyst: { 'run.sh': 'hello from script' } },
+    });
+    fs.cwd = '/home/analyst';
+    fs.setPermission('run.sh', '+x');
+    const result = executePipeline('./run.sh', fs);
+    expect(result.output).toBe('hello from script');
+    expect(result.exitCode).toBe(0);
+  });
+
+  test('returns Permission denied for non-executable ./script', () => {
+    const fs = createFilesystem({
+      home: { analyst: { 'run.sh': 'hello' } },
+    });
+    fs.cwd = '/home/analyst';
+    const result = executePipeline('./run.sh', fs);
+    expect(result.output).toContain('Permission denied');
+    expect(result.exitCode).toBe(126);
+  });
+
+  test('returns error for non-existent ./script', () => {
+    const fs = createFilesystem({ home: { analyst: {} } });
+    fs.cwd = '/home/analyst';
+    const result = executePipeline('./nope.sh', fs);
+    expect(result.output).toContain('No such file or directory');
+    expect(result.exitCode).toBe(127);
+  });
 });
 
 describe('createGame', () => {

@@ -10,6 +10,19 @@ export function executePipeline(input, fs) {
     return { output: '', exitCode: 0 };
   }
 
+  // Script execution: ./path
+  if (ast.pipeline.length === 1 && ast.pipeline[0].cmd.startsWith('./')) {
+    const scriptPath = ast.pipeline[0].cmd;
+    const content = fs.readFile(scriptPath);
+    if (content === null) {
+      return { output: `${scriptPath}: No such file or directory`, exitCode: 127 };
+    }
+    if (!fs.getPermissions(scriptPath).has('x')) {
+      return { output: `${scriptPath}: Permission denied`, exitCode: 126 };
+    }
+    return { output: content, exitCode: 0 };
+  }
+
   let stdin = '';
   let lastResult = { stdout: '', stderr: '', exitCode: 0 };
 
@@ -147,7 +160,7 @@ export function createGame() {
   return game;
 }
 
-const COMMANDS = ['cat', 'cd', 'clear', 'echo', 'help', 'hint', 'ls', 'pwd'];
+const COMMANDS = ['cat', 'cd', 'chmod', 'clear', 'cp', 'echo', 'help', 'hint', 'ls', 'mkdir', 'mv', 'pwd', 'rm'];
 
 export function getCompletions(str, fs) {
   const endsWithSpace = str.endsWith(' ');
