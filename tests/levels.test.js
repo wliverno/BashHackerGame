@@ -18,6 +18,8 @@ describe('levels', () => {
       expect(typeof level.startDir).toBe('string');
       expect(level.subSteps).toBeDefined();
       expect(level.subSteps.length).toBeGreaterThan(0);
+      expect(level.chapter).toBeDefined();
+      expect(typeof level.chapter).toBe('number');
     }
   });
 

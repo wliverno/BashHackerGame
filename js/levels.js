@@ -1,6 +1,7 @@
 export const levels = [
   {
     id: 1,
+    chapter: 1,
     title: 'First Contact',
     story: `You're in. The SSH connection is live.
 
@@ -57,6 +58,7 @@ First things first: figure out where you are and what's around you.`,
 
   {
     id: 2,
+    chapter: 1,
     title: 'Going Deeper',
     story: `Good. You've got your bearings.
 
@@ -115,6 +117,7 @@ Time to explore. You need to learn to move around this filesystem.`,
 
   {
     id: 3,
+    chapter: 1,
     title: 'Finding Your Way Back',
     story: `You've gone deep into the directory structure. But sometimes you need to go back up.
 
