@@ -83,4 +83,21 @@ describe('levels', () => {
     expect(level.subSteps[2].winCondition('cat important.txt', 'You found the important file!', {})).toBe(true);
     expect(level.subSteps[2].winCondition('cat readme.txt', 'Internal directory', {})).toBe(false);
   });
+
+  test('level 4 win conditions check cat output and multi-file command', () => {
+    const level = levels[3];
+
+    // Step 0: output must mention Helios
+    expect(level.subSteps[0].winCondition('cat reports/budget.txt', 'Project Helios: $2.4M', {})).toBe(true);
+    expect(level.subSteps[0].winCondition('cat reports/budget.txt', 'Nothing here', {})).toBe(false);
+
+    // Step 1: output must mention Martinez
+    expect(level.subSteps[1].winCondition('cat reports/staffing.txt', 'J. Martinez hired', {})).toBe(true);
+    expect(level.subSteps[1].winCondition('cat reports/staffing.txt', 'No one listed', {})).toBe(false);
+
+    // Step 2: command must reference both files
+    expect(level.subSteps[2].winCondition('cat reports/budget.txt reports/staffing.txt', 'combined', {})).toBe(true);
+    expect(level.subSteps[2].winCondition('cat reports/budget.txt', 'only one', {})).toBe(false);
+  });
+
 });

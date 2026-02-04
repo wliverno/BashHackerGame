@@ -175,4 +175,57 @@ You're currently in /home/analyst/internal/projects. Time to learn to navigate b
       },
     ],
   },
+
+  {
+    id: 4,
+    chapter: 2,
+    title: 'Gathering Intel',
+    story: `You've explored the basics. Now it's time to dig deeper.
+
+The reports directory might have something interesting. Time to start reading files properly.
+
+cat is your best friend here — it dumps file contents straight to the terminal.`,
+    filesystem: {
+      home: {
+        analyst: {
+          reports: {
+            'budget.txt': 'Q3 Budget Report\nProject Helios: $2.4M approved\nProject Aurora: $800K pending',
+            'staffing.txt': 'Recent Personnel Changes\nJ. Martinez hired — Project Helios lead\nK. Chen transferred — Project Aurora',
+          },
+          internal: {
+            'memo.txt': 'All Helios personnel: report to Lab 3 immediately.',
+          },
+        },
+      },
+    },
+    startDir: '/home/analyst',
+    subSteps: [
+      {
+        objective: 'Read the budget report inside the `reports/` directory.',
+        hints: [
+          'cat can read files in subdirectories: cat path/to/file',
+          'Try: cat reports/budget.txt',
+        ],
+        winCondition: (cmd, output, fs) => output.includes('Helios'),
+      },
+      {
+        objective: 'Now read the staffing report.',
+        hints: [
+          'Same idea — different file in the same directory',
+          'Try: cat reports/staffing.txt',
+        ],
+        winCondition: (cmd, output, fs) => output.includes('Martinez'),
+      },
+      {
+        objective: 'Read both reports in a single command.',
+        hints: [
+          'cat can take multiple files: cat file1 file2',
+          'Try: cat reports/budget.txt reports/staffing.txt',
+        ],
+        winCondition: (cmd, output, fs) => {
+          return cmd.includes('budget.txt') && cmd.includes('staffing.txt');
+        },
+      },
+    ],
+  },
 ];
