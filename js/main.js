@@ -83,6 +83,7 @@ $(function() {
     prompt: formatPrompt,
     completion: (str) => getCompletions(str, game.fs),
     wordAutocomplete: false,
+    completionEscape: false,
     onInit: function() {
       printLevelHeader(this, game.currentLevel, game.getLevelTitle());
       printStory(this, game.getStory());
