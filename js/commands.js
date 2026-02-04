@@ -230,8 +230,13 @@ Type 'hint' if you're stuck!`;
       return { stdout: '', stderr: 'mv: missing operand', exitCode: 1 };
     }
 
-    const dest = args[args.length - 1];
-    const sources = args.slice(0, -1);
+    const paths = args.filter(a => !a.startsWith('-'));
+    if (paths.length < 2) {
+      return { stdout: '', stderr: 'mv: missing operand', exitCode: 1 };
+    }
+
+    const dest = paths[paths.length - 1];
+    const sources = paths.slice(0, -1);
     const destNode = fs.resolvePath(dest.replace(/\/$/, ''));
     const destIsDir = destNode && destNode.type === 'dir';
 
@@ -270,6 +275,10 @@ Type 'hint' if you're stuck!`;
     const recursive = flags.includes('r');
     const force = flags.includes('f');
     const paths = args.filter(a => !a.startsWith('-'));
+
+    if (paths.length === 0) {
+      return { stdout: '', stderr: 'rm: missing operand', exitCode: 1 };
+    }
 
     for (const path of paths) {
       const node = fs.resolvePath(path);
