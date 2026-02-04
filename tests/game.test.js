@@ -148,6 +148,28 @@ describe('game.runCommand', () => {
     game.runCommand('cat dossier.txt');
     expect(game.won).toBe(true);
   });
+
+  test('emits chapterComplete when crossing chapter boundary', () => {
+    const game = createGame();
+
+    // Fast-forward through Chapter 1
+    game.runCommand('pwd');
+    game.runCommand('ls');
+    game.runCommand('cat welcome.txt');
+    game.runCommand('cd internal');
+    game.runCommand('ls');
+    game.runCommand('cd projects');
+    game.runCommand('cd ..');
+    game.runCommand('cd ..');
+    game.runCommand('cd documents');
+
+    // Completes Level 3 (ch1) → transitions to Level 4 (ch2)
+    const result = game.runCommand('cat important.txt');
+
+    expect(result.chapterComplete).toBe(true);
+    expect(result.completedChapter).toBe(1);
+    expect(result.newLevel).toBe(true);
+  });
 });
 
 describe('hint command', () => {

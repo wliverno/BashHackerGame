@@ -126,6 +126,10 @@ export function createGame() {
           currentLevel++;
           currentSubStep = 0;
           fs = loadLevel(currentLevel);
+          if (levels[currentLevel].chapter !== levels[currentLevel - 1].chapter) {
+            result.chapterComplete = true;
+            result.completedChapter = levels[currentLevel - 1].chapter;
+          }
           result.newLevel = true;
           result.newObjective = this.getObjective();
           result.story = this.getStory();
