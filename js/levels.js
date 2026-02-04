@@ -438,4 +438,49 @@ Be careful with rm — there's no undo.`,
       },
     ],
   },
+  {
+    id: 9,
+    chapter: 3,
+    title: 'The Kill Switch',
+    story: `Deep in the server you found a script called kill_switch.sh.
+
+It's supposed to restore public internet access — the one thing Nexus Corp locked down.
+
+But it won't run. Something's wrong with the permissions.`,
+    filesystem: {
+      home: {
+        analyst: {
+          'kill_switch.sh': 'ACCESS GRANTED: Public internet restored',
+          'readme.txt': 'The script needs to be executable. Use chmod +x, then run it with ./kill_switch.sh',
+        },
+      },
+    },
+    startDir: '/home/analyst',
+    subSteps: [
+      {
+        objective: 'Read the readme to understand what needs to be done.',
+        hints: [
+          'cat can read files',
+          'Try: cat readme.txt',
+        ],
+        winCondition: (cmd, output, fs) => output.includes('chmod'),
+      },
+      {
+        objective: 'Make kill_switch.sh executable with chmod.',
+        hints: [
+          'chmod +x filename makes a file executable',
+          'Try: chmod +x kill_switch.sh',
+        ],
+        winCondition: (cmd, output, fs) => fs.getPermissions('kill_switch.sh').has('x'),
+      },
+      {
+        objective: 'Run the script.',
+        hints: [
+          './filename runs a script in the current directory',
+          'Try: ./kill_switch.sh',
+        ],
+        winCondition: (cmd, output, fs) => output.includes('ACCESS GRANTED'),
+      },
+    ],
+  },
 ];

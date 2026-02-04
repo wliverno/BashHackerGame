@@ -175,4 +175,20 @@ describe('levels', () => {
     expect(level.subSteps[2].winCondition('rm -r old_logs', '', { listDir: () => [] })).toBe(false);
   });
 
+  test('level 9 win conditions check chmod and script execution', () => {
+    const level = levels[8];
+
+    // Step 0: output must mention chmod (from reading readme)
+    expect(level.subSteps[0].winCondition('cat readme.txt', 'Use chmod to fix permissions', {})).toBe(true);
+    expect(level.subSteps[0].winCondition('cat readme.txt', 'nothing useful here', {})).toBe(false);
+
+    // Step 1: kill_switch.sh must have x permission
+    expect(level.subSteps[1].winCondition('chmod +x kill_switch.sh', '', { getPermissions: () => new Set(['x']) })).toBe(true);
+    expect(level.subSteps[1].winCondition('chmod +x kill_switch.sh', '', { getPermissions: () => new Set() })).toBe(false);
+
+    // Step 2: output must include ACCESS GRANTED
+    expect(level.subSteps[2].winCondition('./kill_switch.sh', 'ACCESS GRANTED: Public internet restored', {})).toBe(true);
+    expect(level.subSteps[2].winCondition('./kill_switch.sh', 'Permission denied', {})).toBe(false);
+  });
+
 });
