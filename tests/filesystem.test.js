@@ -316,3 +316,106 @@ describe('changeDir', () => {
     expect(result).toBe(false);
   });
 });
+
+describe('createDir', () => {
+  let fs;
+
+  beforeEach(() => {
+    fs = createFilesystem({
+      home: { analyst: { projects: {} } },
+    });
+    fs.cwd = '/home/analyst';
+  });
+
+  test('creates a new directory', () => {
+    expect(fs.createDir('newdir')).toBe(true);
+    expect(fs.listDir('newdir')).toEqual([]);
+  });
+
+  test('returns false if path already exists', () => {
+    expect(fs.createDir('projects')).toBe(false);
+  });
+
+  test('returns false if parent does not exist', () => {
+    expect(fs.createDir('nonexistent/child')).toBe(false);
+  });
+
+  test('creates directory with absolute path', () => {
+    expect(fs.createDir('/home/analyst/newdir')).toBe(true);
+    expect(fs.listDir('/home/analyst/newdir')).toEqual([]);
+  });
+});
+
+describe('deleteEntry', () => {
+  let fs;
+
+  beforeEach(() => {
+    fs = createFilesystem({
+      home: {
+        analyst: {
+          'file.txt': 'content',
+          empty: {},
+          logs: { 'a.log': 'log1' },
+        },
+      },
+    });
+    fs.cwd = '/home/analyst';
+  });
+
+  test('deletes a file', () => {
+    expect(fs.deleteEntry('file.txt')).toBe(true);
+    expect(fs.readFile('file.txt')).toBeNull();
+  });
+
+  test('deletes an empty directory', () => {
+    expect(fs.deleteEntry('empty')).toBe(true);
+    expect(fs.listDir('empty')).toBeNull();
+  });
+
+  test('deletes a directory with contents', () => {
+    expect(fs.deleteEntry('logs')).toBe(true);
+    expect(fs.listDir('logs')).toBeNull();
+  });
+
+  test('returns false for non-existent path', () => {
+    expect(fs.deleteEntry('nope')).toBe(false);
+  });
+
+  test('returns false when trying to delete cwd', () => {
+    expect(fs.deleteEntry('/home/analyst')).toBe(false);
+  });
+
+  test('returns false when trying to delete root', () => {
+    expect(fs.deleteEntry('/')).toBe(false);
+  });
+});
+
+describe('permissions', () => {
+  let fs;
+
+  beforeEach(() => {
+    fs = createFilesystem({
+      home: { analyst: { 'script.sh': '#!/bin/bash' } },
+    });
+    fs.cwd = '/home/analyst';
+  });
+
+  test('default permissions are empty', () => {
+    expect(fs.getPermissions('script.sh').has('x')).toBe(false);
+  });
+
+  test('setPermission adds permissions', () => {
+    fs.setPermission('script.sh', '+x');
+    expect(fs.getPermissions('script.sh').has('x')).toBe(true);
+  });
+
+  test('setPermission removes permissions', () => {
+    fs.setPermission('script.sh', '+x');
+    fs.setPermission('script.sh', '-x');
+    expect(fs.getPermissions('script.sh').has('x')).toBe(false);
+  });
+
+  test('returns false for non-existent file', () => {
+    expect(fs.setPermission('nope.sh', '+x')).toBe(false);
+  });
+});

@@ -23,6 +23,7 @@ export function createFilesystem(tree = {}, homePath = '/home/analyst') {
   const fs = {
     root,
     cwd: '/',
+    _permissions: new Map(),
     homePath,
 
     resolvePath(path) {
@@ -153,6 +154,56 @@ export function createFilesystem(tree = {}, homePath = '/home/analyst') {
 
       this.cwd = absPath;
       return true;
+    },
+
+    createDir(path) {
+      if (this.resolvePath(path) !== null) return false;
+
+      const absPath = this.getAbsolutePath(path);
+      const parts = absPath.split('/').filter(p => p !== '');
+      const dirName = parts.pop();
+      if (!dirName) return false;
+
+      const parentPath = '/' + parts.join('/');
+      const parent = this.resolvePath(parentPath || '/');
+      if (!parent || parent.type !== 'dir') return false;
+
+      parent.children[dirName] = { type: 'dir', name: dirName, children: {} };
+      return true;
+    },
+
+    deleteEntry(path) {
+      const absPath = this.getAbsolutePath(path);
+      if (absPath === '/') return false;
+      if (absPath === this.cwd || this.cwd.startsWith(absPath + '/')) return false;
+
+      const parts = absPath.split('/').filter(p => p !== '');
+      const entryName = parts.pop();
+      if (!entryName) return false;
+
+      const parentPath = '/' + parts.join('/');
+      const parent = this.resolvePath(parentPath || '/');
+      if (!parent || parent.type !== 'dir' || !parent.children[entryName]) return false;
+
+      delete parent.children[entryName];
+      return true;
+    },
+
+    setPermission(path, mode) {
+      if (this.resolvePath(path) === null) return false;
+      const absPath = this.getAbsolutePath(path);
+      if (!this._permissions.has(absPath)) this._permissions.set(absPath, new Set());
+      const perms = this._permissions.get(absPath);
+      const op = mode[0];
+      const chars = mode.slice(1).split('');
+      if (op === '+') chars.forEach(c => perms.add(c));
+      else if (op === '-') chars.forEach(c => perms.delete(c));
+      return true;
+    },
+
+    getPermissions(path) {
+      const absPath = this.getAbsolutePath(path);
+      return this._permissions.get(absPath) || new Set();
     },
   };
 
