@@ -1,4 +1,4 @@
-import { createGame } from './game.js';
+import { createGame, getCompletions } from './game.js';
 
 const game = createGame();
 
@@ -42,37 +42,6 @@ function printWinScreen(term) {
   term.echo('');
 }
 
-const COMMANDS = ['cat', 'cd', 'clear', 'echo', 'help', 'hint', 'ls', 'pwd'];
-
-function getCompletions(str) {
-  const endsWithSpace = str.endsWith(' ');
-  const parts = str.trim().split(/\s+/);
-
-  // Typing the command name itself
-  if (parts.length <= 1 && !endsWithSpace) {
-    const partial = parts[0] || '';
-    return COMMANDS.filter(c => c.startsWith(partial));
-  }
-
-  // After a command — complete file/dir names from cwd
-  const cmd = parts[0];
-  const partial = endsWithSpace ? '' : parts[parts.length - 1];
-  // Everything before the word being completed
-  const prefix = endsWithSpace ? str : parts.slice(0, -1).join(' ') + ' ';
-  const entries = game.fs.listDir('.') || [];
-
-  if (cmd === 'cd') {
-    const dirs = entries.filter(e => e.type === 'dir').map(e => e.name);
-    return ['..', ...dirs]
-      .filter(n => n.startsWith(partial))
-      .map(n => prefix + n);
-  }
-
-  return entries.map(e => e.name)
-    .filter(n => n.startsWith(partial))
-    .map(n => prefix + n);
-}
-
 $(function() {
   const term = $('#terminal').terminal(function(command) {
     if (!command.trim()) return;
@@ -112,7 +81,8 @@ $(function() {
   }, {
     greetings: false,
     prompt: formatPrompt,
-    completion: getCompletions,
+    completion: (str) => getCompletions(str, game.fs),
+    wordAutocomplete: false,
     onInit: function() {
       printLevelHeader(this, game.currentLevel, game.getLevelTitle());
       printStory(this, game.getStory());

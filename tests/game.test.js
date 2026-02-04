@@ -1,4 +1,4 @@
-import { executePipeline, createGame } from '../js/game.js';
+import { executePipeline, createGame, getCompletions } from '../js/game.js';
 import { createFilesystem } from '../js/filesystem.js';
 import { levels } from '../js/levels.js';
 
@@ -153,5 +153,67 @@ describe('hint command', () => {
     const game = createGame();
     game.runCommand('hint');
     expect(game.currentSubStep).toBe(0);
+  });
+});
+
+describe('getCompletions', () => {
+  let fs;
+
+  beforeEach(() => {
+    fs = createFilesystem({
+      home: {
+        analyst: {
+          'welcome.txt': 'hi',
+          'readme.md': 'docs',
+          documents: {},
+          projects: {},
+        },
+      },
+    });
+    fs.cwd = '/home/analyst';
+  });
+
+  test('completes command names from empty input', () => {
+    expect(getCompletions('', fs)).toContain('ls');
+    expect(getCompletions('', fs)).toContain('cd');
+  });
+
+  test('completes partial command name', () => {
+    expect(getCompletions('c', fs)).toContain('cat');
+    expect(getCompletions('c', fs)).toContain('cd');
+    expect(getCompletions('c', fs)).toContain('clear');
+    expect(getCompletions('c', fs)).not.toContain('ls');
+  });
+
+  test('completes file names after command with trailing space', () => {
+    const results = getCompletions('cat ', fs);
+    expect(results).toContain('cat welcome.txt');
+    expect(results).toContain('cat readme.md');
+    expect(results).toContain('cat documents');
+  });
+
+  test('completes file names matching partial', () => {
+    const results = getCompletions('cat w', fs);
+    expect(results).toEqual(['cat welcome.txt']);
+  });
+
+  test('cd only completes directories', () => {
+    const results = getCompletions('cd ', fs);
+    expect(results).toContain('cd documents');
+    expect(results).toContain('cd projects');
+    expect(results).toContain('cd ..');
+    expect(results).not.toContain('cd welcome.txt');
+    expect(results).not.toContain('cd readme.md');
+  });
+
+  test('cd completes partial directory name', () => {
+    const results = getCompletions('cd d', fs);
+    expect(results).toEqual(['cd documents']);
+  });
+
+  test('ls completes all entries', () => {
+    const results = getCompletions('ls ', fs);
+    expect(results).toContain('ls welcome.txt');
+    expect(results).toContain('ls documents');
   });
 });

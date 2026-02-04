@@ -142,3 +142,33 @@ export function createGame() {
 
   return game;
 }
+
+const COMMANDS = ['cat', 'cd', 'clear', 'echo', 'help', 'hint', 'ls', 'pwd'];
+
+export function getCompletions(str, fs) {
+  const endsWithSpace = str.endsWith(' ');
+  const parts = str.trim().split(/\s+/);
+
+  // Typing the command name itself
+  if (parts.length <= 1 && !endsWithSpace) {
+    const partial = parts[0] || '';
+    return COMMANDS.filter(c => c.startsWith(partial));
+  }
+
+  // After a command — complete file/dir names from cwd
+  const cmd = parts[0];
+  const partial = endsWithSpace ? '' : parts[parts.length - 1];
+  const prefix = endsWithSpace ? str : parts.slice(0, -1).join(' ') + ' ';
+  const entries = fs.listDir('.') || [];
+
+  if (cmd === 'cd') {
+    const dirs = entries.filter(e => e.type === 'dir').map(e => e.name);
+    return ['..', ...dirs]
+      .filter(n => n.startsWith(partial))
+      .map(n => prefix + n);
+  }
+
+  return entries.map(e => e.name)
+    .filter(n => n.startsWith(partial))
+    .map(n => prefix + n);
+}
