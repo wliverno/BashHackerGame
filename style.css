@@ -1,0 +1,32 @@
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: #0a0a0a;
+}
+
+#terminal {
+  height: 100%;
+  --font: 'Consolas', 'Monaco', 'Courier New', monospace;
+  --size: 1.1;
+  --color: #0f0;
+  --background: #0a0a0a;
+}
+
+.terminal .cmd .cursor {
+  background-color: #0f0;
+  color: #000;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.terminal .cmd .cursor.blink {
+  animation: blink 1s infinite;
+}
