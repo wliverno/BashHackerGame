@@ -186,6 +186,7 @@ export function createFilesystem(tree = {}, homePath = '/home/analyst') {
       if (!parent || parent.type !== 'dir' || !parent.children[entryName]) return false;
 
       delete parent.children[entryName];
+      this._permissions.delete(absPath);
       return true;
     },
 

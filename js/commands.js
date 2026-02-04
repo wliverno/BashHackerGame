@@ -260,6 +260,13 @@ Type 'hint' if you're stuck!`;
         }
       }
 
+      const srcPerms = fs.getPermissions(src);
+      if (srcPerms.size > 0) {
+        for (const p of srcPerms) {
+          fs.setPermission(targetPath, '+' + p);
+        }
+      }
+
       if (!fs.deleteEntry(src)) {
         return { stdout: '', stderr: `mv: cannot remove '${src}'`, exitCode: 1 };
       }
