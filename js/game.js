@@ -10,7 +10,7 @@ export function executePipeline(input, fs) {
     return { output: '', exitCode: 0 };
   }
 
-  // Script execution: ./path
+  // Script execution: ./path (single-command only; args and redirects are intentionally not forwarded)
   if (ast.pipeline.length === 1 && ast.pipeline[0].cmd.startsWith('./')) {
     const scriptPath = ast.pipeline[0].cmd;
     const content = fs.readFile(scriptPath);
