@@ -1,0 +1,157 @@
+import { executePipeline, createGame } from '../js/game.js';
+import { createFilesystem } from '../js/filesystem.js';
+import { levels } from '../js/levels.js';
+
+describe('executePipeline', () => {
+  let fs;
+
+  beforeEach(() => {
+    fs = createFilesystem({
+      home: {
+        analyst: {
+          'file.txt': 'hello world',
+        },
+      },
+    });
+    fs.cwd = '/home/analyst';
+  });
+
+  test('executes single command', () => {
+    const result = executePipeline('pwd', fs);
+    expect(result.output).toBe('/home/analyst');
+  });
+
+  test('executes pipe chain', () => {
+    const result = executePipeline('cat file.txt | cat', fs);
+    expect(result.output).toBe('hello world');
+  });
+
+  test('handles redirect write', () => {
+    executePipeline('echo "new content" > out.txt', fs);
+    expect(fs.readFile('out.txt')).toBe('new content');
+  });
+
+  test('handles redirect append', () => {
+    fs.writeFile('out.txt', 'line1');
+    executePipeline('echo "line2" >> out.txt', fs);
+    expect(fs.readFile('out.txt')).toBe('line1line2');
+  });
+
+  test('returns error output', () => {
+    const result = executePipeline('cat nonexistent.txt', fs);
+    expect(result.output).toContain('No such file or directory');
+    expect(result.exitCode).toBe(1);
+  });
+
+  test('returns error for unknown command', () => {
+    const result = executePipeline('foobar', fs);
+    expect(result.output).toContain('command not found');
+    expect(result.exitCode).toBe(127);
+  });
+});
+
+describe('createGame', () => {
+  test('initializes at level 0, substep 0', () => {
+    const game = createGame();
+    expect(game.currentLevel).toBe(0);
+    expect(game.currentSubStep).toBe(0);
+  });
+
+  test('loads filesystem from level', () => {
+    const game = createGame();
+    expect(game.fs.cwd).toBe(levels[0].startDir);
+  });
+
+  test('getObjective returns current substep objective', () => {
+    const game = createGame();
+    expect(game.getObjective()).toBe(levels[0].subSteps[0].objective);
+  });
+
+  test('getHint returns hints for current substep', () => {
+    const game = createGame();
+    expect(game.getHint(0)).toBe(levels[0].subSteps[0].hints[0]);
+  });
+
+  test('getStory returns current level story', () => {
+    const game = createGame();
+    expect(game.getStory()).toBe(levels[0].story);
+  });
+});
+
+describe('game.runCommand', () => {
+  test('executes command and returns output', () => {
+    const game = createGame();
+    const result = game.runCommand('pwd');
+    expect(result.output).toBe('/home/analyst');
+  });
+
+  test('advances substep when win condition met', () => {
+    const game = createGame();
+    expect(game.currentSubStep).toBe(0);
+    game.runCommand('pwd');
+    expect(game.currentSubStep).toBe(1);
+  });
+
+  test('does not advance when win condition not met', () => {
+    const game = createGame();
+    game.runCommand('echo hello');
+    expect(game.currentSubStep).toBe(0);
+  });
+
+  test('advances to next level when all substeps complete', () => {
+    const game = createGame();
+
+    game.runCommand('pwd');
+    expect(game.currentSubStep).toBe(1);
+
+    game.runCommand('ls');
+    expect(game.currentSubStep).toBe(2);
+
+    game.runCommand('cat welcome.txt');
+    expect(game.currentLevel).toBe(1);
+    expect(game.currentSubStep).toBe(0);
+  });
+
+  test('sets won flag when all levels complete', () => {
+    const game = createGame();
+
+    // Level 1
+    game.runCommand('pwd');
+    game.runCommand('ls');
+    game.runCommand('cat welcome.txt');
+
+    // Level 2
+    game.runCommand('cd internal');
+    game.runCommand('ls');
+    game.runCommand('cd projects');
+
+    // Level 3
+    game.runCommand('cd ..');
+    game.runCommand('cd ..');
+    game.runCommand('cd documents');
+    game.runCommand('cat important.txt');
+
+    expect(game.won).toBe(true);
+  });
+});
+
+describe('hint command', () => {
+  test('returns current hint', () => {
+    const game = createGame();
+    const result = game.runCommand('hint');
+    expect(result.output).toContain('pwd');
+  });
+
+  test('escalates hints on repeated calls', () => {
+    const game = createGame();
+    const hint1 = game.runCommand('hint');
+    const hint2 = game.runCommand('hint');
+    expect(hint2.output).not.toBe(hint1.output);
+  });
+
+  test('does not advance substep', () => {
+    const game = createGame();
+    game.runCommand('hint');
+    expect(game.currentSubStep).toBe(0);
+  });
+});
