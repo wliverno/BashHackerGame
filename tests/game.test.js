@@ -131,6 +131,21 @@ describe('game.runCommand', () => {
     game.runCommand('cd documents');
     game.runCommand('cat important.txt');
 
+
+    // Level 4
+    game.runCommand('cat reports/budget.txt');
+    game.runCommand('cat reports/staffing.txt');
+    game.runCommand('cat reports/budget.txt reports/staffing.txt');
+
+    // Level 5
+    game.runCommand('echo "started investigating" > notes.txt');
+    game.runCommand('cat notes.txt');
+    game.runCommand('echo "Project Helios is the target" > notes.txt');
+
+    // Level 6
+    game.runCommand('cat dossier.txt');
+    game.runCommand('echo "- New finding: budget is $2.4M" >> dossier.txt');
+    game.runCommand('cat dossier.txt');
     expect(game.won).toBe(true);
   });
 });
