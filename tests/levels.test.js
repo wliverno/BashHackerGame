@@ -100,4 +100,25 @@ describe('levels', () => {
     expect(level.subSteps[2].winCondition('cat reports/budget.txt', 'only one', {})).toBe(false);
   });
 
+
+  test('level 5 win conditions check file creation and overwrite via >', () => {
+    const level = levels[4];
+    const hasFile = { readFile: () => 'some content' };
+    const noFile = { readFile: () => null };
+
+    // Step 0: notes.txt must exist in filesystem after command
+    expect(level.subSteps[0].winCondition('echo "hi" > notes.txt', '', hasFile)).toBe(true);
+    expect(level.subSteps[0].winCondition('echo "hi" > notes.txt', '', noFile)).toBe(false);
+
+    // Step 1: must cat notes.txt and get non-empty output
+    expect(level.subSteps[1].winCondition('cat notes.txt', 'some content', {})).toBe(true);
+    expect(level.subSteps[1].winCondition('ls', 'notes.txt', {})).toBe(false);
+    expect(level.subSteps[1].winCondition('cat notes.txt', '', {})).toBe(false);
+
+    // Step 2: must use > (not >>) targeting notes.txt
+    expect(level.subSteps[2].winCondition('echo "new intel" > notes.txt', '', {})).toBe(true);
+    expect(level.subSteps[2].winCondition('echo "new intel" >> notes.txt', '', {})).toBe(false);
+    expect(level.subSteps[2].winCondition('echo "new intel" > other.txt', '', {})).toBe(false);
+  });
+
 });

@@ -228,4 +228,56 @@ cat is your best friend here — it dumps file contents straight to the terminal
       },
     ],
   },
+  {
+    id: 5,
+    chapter: 2,
+    title: 'Leaving a Trail',
+    story: `You've been reading files. But what if you need to write one?
+
+In Linux, you can redirect output into a file using >.
+echo "hello" > file.txt creates file.txt with the text "hello".
+
+If the file already exists, > overwrites it completely.`,
+    filesystem: {
+      home: {
+        analyst: {
+          reports: {
+            'budget.txt': 'Project Helios: $2.4M',
+            'staffing.txt': 'J. Martinez — Helios lead',
+          },
+        },
+      },
+    },
+    startDir: '/home/analyst',
+    subSteps: [
+      {
+        objective: 'Create a file called `notes.txt` using echo and `>`.',
+        hints: [
+          'echo "text" > filename writes text to a new file',
+          'Try: echo "started investigating" > notes.txt',
+        ],
+        winCondition: (cmd, output, fs) => fs.readFile('notes.txt') !== null,
+      },
+      {
+        objective: 'Read your notes back with cat.',
+        hints: [
+          'You know how to do this one already',
+          'Try: cat notes.txt',
+        ],
+        winCondition: (cmd, output, fs) => {
+          return cmd.includes('cat') && cmd.includes('notes.txt') && output.length > 0;
+        },
+      },
+      {
+        objective: 'Overwrite your notes with new intel using `>` again.',
+        hints: [
+          '> replaces the entire file contents — try it again on notes.txt',
+          'Try: echo "Project Helios is the target" > notes.txt',
+        ],
+        winCondition: (cmd, output, fs) => {
+          return cmd.includes('>') && !cmd.includes('>>') && cmd.includes('notes.txt');
+        },
+      },
+    ],
+  },
 ];
