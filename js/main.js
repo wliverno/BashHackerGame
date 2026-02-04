@@ -32,11 +32,11 @@ function printLevelHeader(term, levelIndex, title) {
 function printWinScreen(term) {
   term.echo('');
   term.echo('[[;#0f0;]═══════════════════════════════════════]');
-  term.echo('[[;#0f0;]      CHAPTER 2 COMPLETE!              ]');
+  term.echo('[[;#0f0;]      CHAPTER 3 COMPLETE!              ]');
   term.echo('[[;#0f0;]═══════════════════════════════════════]');
   term.echo('');
-  term.echo("[[;#0ff;]You can read, write, and modify files at will.]");
-  term.echo('[[;#0ff;]The server holds no secrets from you now.]');
+  term.echo("[[;#0ff;]You can navigate, read, write, and manipulate files.]");
+  term.echo('[[;#0ff;]The server bends to your will.]');
   term.echo('');
   term.echo('[[;#ff0;]More chapters coming soon...]');
   term.echo('');

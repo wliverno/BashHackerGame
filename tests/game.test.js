@@ -175,6 +175,25 @@ describe('game.runCommand', () => {
     game.runCommand('cat dossier.txt');
     game.runCommand('echo "- New finding: budget is $2.4M" >> dossier.txt');
     game.runCommand('cat dossier.txt');
+
+    // Level 7 — Organizing the Evidence
+    expect(game.currentLevel).toBe(6);
+    game.runCommand('mkdir evidence');
+    game.runCommand('cp reports/budget.txt evidence/');
+    game.runCommand('cp reports/staffing.txt evidence/');
+
+    // Level 8 — Covering Tracks
+    expect(game.currentLevel).toBe(7);
+    game.runCommand('mv evidence/budget.txt classified/');
+    game.runCommand('rm temp.log');
+    game.runCommand('rm -r old_logs');
+
+    // Level 9 — The Kill Switch
+    expect(game.currentLevel).toBe(8);
+    game.runCommand('cat readme.txt');
+    game.runCommand('chmod +x kill_switch.sh');
+    game.runCommand('./kill_switch.sh');
+
     expect(game.won).toBe(true);
   });
 
