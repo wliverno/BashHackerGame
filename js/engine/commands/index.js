@@ -9,3 +9,5 @@ export const commands = {
   ...permissionCommands,
   ...metaCommands,
 };
+
+export const COMMAND_NAMES = Object.keys(commands);

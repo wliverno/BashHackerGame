@@ -1,56 +1,15 @@
-import { createGame, getCompletions } from './game.js';
+import { createGame } from './ui/game-loop.js';
+import {
+  formatPrompt,
+  printStory,
+  printObjective,
+  printLevelHeader,
+  printWinScreen,
+  printChapterComplete,
+  getCompletions,
+} from './ui/terminal.js';
 
 const game = createGame();
-
-function formatPrompt() {
-  const path = game.fs.cwd === '/home/analyst'
-    ? '~'
-    : game.fs.cwd.replace('/home/analyst', '~');
-  return `[[;#0f0;]analyst@nexus-srv-04:${path}$] `;
-}
-
-function printStory(term, story) {
-  term.echo('');
-  story.split('\n').forEach(line => {
-    term.echo(`[[;#0ff;]${line}]`);
-  });
-  term.echo('');
-}
-
-function printObjective(term, objective) {
-  term.echo(`[[;#ff0;]▶ Objective: ${objective}]`);
-  term.echo('');
-}
-
-function printLevelHeader(term, levelIndex, title) {
-  term.echo('');
-  term.echo('[[;#f0f;]═══════════════════════════════════════]');
-  term.echo(`[[;#f0f;]  LEVEL ${levelIndex + 1}: ${title.toUpperCase()}]`);
-  term.echo('[[;#f0f;]═══════════════════════════════════════]');
-}
-
-function printWinScreen(term) {
-  term.echo('');
-  term.echo('[[;#0f0;]═══════════════════════════════════════]');
-  term.echo('[[;#0f0;]      CHAPTER 3 COMPLETE!              ]');
-  term.echo('[[;#0f0;]═══════════════════════════════════════]');
-  term.echo('');
-  term.echo("[[;#0ff;]You can navigate, read, write, and manipulate files.]");
-  term.echo('[[;#0ff;]The server bends to your will.]');
-  term.echo('');
-  term.echo('[[;#ff0;]More chapters coming soon...]');
-  term.echo('');
-}
-
-function printChapterComplete(term, chapter) {
-  term.echo('');
-  term.echo('[[;#0f0;]═══════════════════════════════════════]');
-  term.echo(`[[;#0f0;]  CHAPTER ${chapter} COMPLETE!                ]`);
-  term.echo('[[;#0f0;]═══════════════════════════════════════]');
-  term.echo('');
-  term.echo(`[[;#0ff;]Chapter ${chapter} done. The next chapter awaits...]`);
-  term.echo('');
-}
 
 $(function() {
   const term = $('#terminal').terminal(function(command) {
@@ -94,7 +53,7 @@ $(function() {
     }
   }, {
     greetings: false,
-    prompt: formatPrompt,
+    prompt: () => formatPrompt(game.fs),
     completion: (str) => getCompletions(str, game.fs),
     wordAutocomplete: false,
     completionEscape: false,
