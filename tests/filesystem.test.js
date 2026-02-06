@@ -1,4 +1,4 @@
-import { createFilesystem } from '../js/filesystem.js';
+import { createFilesystem } from '../js/engine/filesystem.js';
 
 describe('createFilesystem', () => {
   test('creates filesystem with root directory', () => {

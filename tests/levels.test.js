@@ -1,4 +1,4 @@
-import { levels } from '../js/levels.js';
+import { levels } from '../js/gameplay/levels.js';
 
 describe('levels', () => {
   test('has at least 3 levels', () => {

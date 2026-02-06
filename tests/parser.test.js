@@ -1,4 +1,4 @@
-import { tokenize, parse } from '../js/parser.js';
+import { tokenize, parse } from '../js/engine/parser.js';
 
 describe('tokenize', () => {
   test('tokenizes simple command', () => {

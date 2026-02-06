@@ -1,5 +1,5 @@
-import { commands } from '../js/commands.js';
-import { createFilesystem } from '../js/filesystem.js';
+import { commands } from '../js/engine/commands/index.js';
+import { createFilesystem } from '../js/engine/filesystem.js';
 
 describe('pwd', () => {
   test('returns current working directory', () => {

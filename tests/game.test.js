@@ -1,6 +1,8 @@
-import { executePipeline, createGame, getCompletions } from '../js/game.js';
-import { createFilesystem } from '../js/filesystem.js';
-import { levels } from '../js/levels.js';
+import { createGame } from '../js/ui/game-loop.js';
+import { executePipeline } from '../js/engine/executor.js';
+import { getCompletions } from '../js/ui/terminal.js';
+import { createFilesystem } from '../js/engine/filesystem.js';
+import { levels } from '../js/gameplay/levels.js';
 
 describe('executePipeline', () => {
   let fs;
