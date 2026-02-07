@@ -22,6 +22,38 @@ $(function() {
       return;
     }
 
+    // Handle game over
+    if (result.gameOver) {
+      const termInstance = this;
+      this.echo(`[[;#f44;]${result.output}]`);
+
+      // Use push to create a temporary handler that accepts any input
+      this.push(function(command) {
+        termInstance.pop(); // Remove this temporary handler
+        termInstance.clear();
+
+        const restartResult = game.restartLevel();
+        printLevelHeader(termInstance, game.currentLevel, restartResult.levelTitle);
+        printStory(termInstance, restartResult.story);
+        printObjective(termInstance, restartResult.objective);
+      }, {
+        prompt: '',
+        keydown: function(e) {
+          // Any keypress restarts
+          termInstance.pop();
+          termInstance.clear();
+
+          const restartResult = game.restartLevel();
+          printLevelHeader(termInstance, game.currentLevel, restartResult.levelTitle);
+          printStory(termInstance, restartResult.story);
+          printObjective(termInstance, restartResult.objective);
+
+          return false; // Prevent key from being processed
+        }
+      });
+      return;
+    }
+
     if (result.output) {
       if (result.exitCode !== 0) {
         this.echo(`[[;#f44;]${result.output}]`);

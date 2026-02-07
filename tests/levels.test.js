@@ -43,9 +43,9 @@ describe('levels', () => {
     });
   });
 
-  test('each level has at least 3 substeps', () => {
+  test('each level has at least 2 substeps', () => {
     for (const level of levels) {
-      expect(level.subSteps.length).toBeGreaterThanOrEqual(3);
+      expect(level.subSteps.length).toBeGreaterThanOrEqual(2);
     }
   });
 
@@ -78,21 +78,27 @@ describe('levels', () => {
   test('level 3 win conditions check cwd and output', () => {
     const level = levels[2];
 
-    expect(level.subSteps[0].winCondition('cd ..', '', { cwd: '/home/analyst/internal' })).toBe(true);
-    expect(level.subSteps[1].winCondition('cd ..', '', { cwd: '/home/analyst' })).toBe(true);
-    expect(level.subSteps[2].winCondition('cat important.txt', 'You found the important file!', {})).toBe(true);
-    expect(level.subSteps[2].winCondition('cat readme.txt', 'Internal directory', {})).toBe(false);
+    // Step 0: Navigate back to /home/analyst (accepts cd .. or direct path)
+    expect(level.subSteps[0].winCondition('cd ..', '', { cwd: '/home/analyst' })).toBe(true);
+    expect(level.subSteps[0].winCondition('cd /home/analyst', '', { cwd: '/home/analyst' })).toBe(true);
+    expect(level.subSteps[0].winCondition('cd ..', '', { cwd: '/home/analyst/internal' })).toBe(false);
+
+    // Step 1: Navigate to documents and read important.txt
+    expect(level.subSteps[1].winCondition('cat important.txt', 'You found the important file!', {})).toBe(true);
+    expect(level.subSteps[1].winCondition('cat readme.txt', 'Internal directory', {})).toBe(false);
   });
 
   test('level 4 win conditions check cat output and multi-file command', () => {
     const level = levels[3];
 
-    // Step 0: output must mention Helios
-    expect(level.subSteps[0].winCondition('cat reports/budget.txt', 'Project Helios: $2.4M', {})).toBe(true);
+    // Step 0: output must mention Kill All Humans or Puppy Love
+    expect(level.subSteps[0].winCondition('cat reports/budget.txt', 'Project "Kill All Humans": $2.4B approved', {})).toBe(true);
+    expect(level.subSteps[0].winCondition('cat reports/budget.txt', 'Project "Puppy Love": $800K pending', {})).toBe(true);
     expect(level.subSteps[0].winCondition('cat reports/budget.txt', 'Nothing here', {})).toBe(false);
 
-    // Step 1: output must mention Martinez
-    expect(level.subSteps[1].winCondition('cat reports/staffing.txt', 'J. Martinez hired', {})).toBe(true);
+    // Step 1: output must mention T-virus or Bond
+    expect(level.subSteps[1].winCondition('cat reports/staffing.txt', 'J. T-virus hired', {})).toBe(true);
+    expect(level.subSteps[1].winCondition('cat reports/staffing.txt', 'J. Bond transferred', {})).toBe(true);
     expect(level.subSteps[1].winCondition('cat reports/staffing.txt', 'No one listed', {})).toBe(false);
 
     // Step 2: command must reference both files
@@ -182,13 +188,13 @@ describe('levels', () => {
     expect(level.subSteps[0].winCondition('cat readme.txt', 'Use chmod to fix permissions', {})).toBe(true);
     expect(level.subSteps[0].winCondition('cat readme.txt', 'nothing useful here', {})).toBe(false);
 
-    // Step 1: kill_switch.sh must have x permission
-    expect(level.subSteps[1].winCondition('chmod +x kill_switch.sh', '', { getPermissions: () => new Set(['x']) })).toBe(true);
-    expect(level.subSteps[1].winCondition('chmod +x kill_switch.sh', '', { getPermissions: () => new Set() })).toBe(false);
+    // Step 1: antidote.sh must have x permission
+    expect(level.subSteps[1].winCondition('chmod +x antidote.sh', '', { getPermissions: () => new Set(['x']) })).toBe(true);
+    expect(level.subSteps[1].winCondition('chmod +x antidote.sh', '', { getPermissions: () => new Set() })).toBe(false);
 
     // Step 2: output must include ACCESS GRANTED
-    expect(level.subSteps[2].winCondition('./kill_switch.sh', 'ACCESS GRANTED: Public internet restored', {})).toBe(true);
-    expect(level.subSteps[2].winCondition('./kill_switch.sh', 'Permission denied', {})).toBe(false);
+    expect(level.subSteps[2].winCondition('./antidote.sh', 'T-VIRUS ANTIDOTE DATABASE\nAccessing cure formula...\n\nERROR: NO KNOWN CURE\n\nSystem status: The Cheat is not dead.', {})).toBe(true);
+    expect(level.subSteps[2].winCondition('./antidote.sh', 'Permission denied', {})).toBe(false);
   });
 
 });

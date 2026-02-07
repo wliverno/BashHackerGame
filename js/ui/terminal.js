@@ -4,7 +4,7 @@ export function formatPrompt(fs) {
   const path = fs.cwd === '/home/analyst'
     ? '~'
     : fs.cwd.replace('/home/analyst', '~');
-  return `[[;#0f0;]analyst@nexus-srv-04:${path}$] `;
+  return `[[;#0f0;]analyst@ucorp-srv-04:${path}$] `;
 }
 
 export function printStory(term, story) {

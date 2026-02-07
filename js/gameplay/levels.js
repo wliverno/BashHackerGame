@@ -1,3 +1,59 @@
+// Base filesystem structure for the Umbrella Corp server
+// This persists across most levels - levels can extend or override as needed
+const BASE_FILESYSTEM = {
+  home: {
+    analyst: {
+      '.bash_history': 'cd /var/log\ncat access.log\nexit',
+      'welcome.txt': 'Welcome to the Umbrella Corporation Internal Server.\nAll activity is monitored.\nSharing disabled for internal directories.',
+      documents: {
+        'memo.txt': 'Team — remember to update your passwords this quarter. -Admin',
+        'schedule.txt': 'Monday: Team standup\nTuesday: Server maintenance\nWednesday: Security audit',
+      },
+      internal: {
+        'contacts.txt': 'Dick Cheney (deceased): dcheney@whitehouse.gov\nGeorge Wallace (deceased): gwallace@alabama.gov',
+        projects: {
+          'project_alpha.txt': 'Project Alpha: Status ACTIVE\nLead: dtrump@whitehouse.gov\nBudget: $9.1 trillion',
+          'project_tango.txt': 'Project Tango: Status FAILED',
+        },
+        reports: {
+          'q1_summary.txt': 'Q1 was strong. Revenue up 12%, Human deaths up 2000%',
+          'activity_log.txt': 'analyst login: 02:14 UTC — suspicious activity detected',
+        },
+      },
+    },
+  },
+};
+
+// Protected lore files that trigger game over if deleted/moved
+const PROTECTED_FILES = [
+  '/home/analyst/welcome.txt',
+  '/home/analyst/internal/contacts.txt',
+  '/home/analyst/internal/projects/project_alpha.txt',
+  '/home/analyst/internal/projects/project_tango.txt',
+  '/home/analyst/internal/reports/q1_summary.txt',
+];
+
+// Deep merge utility for extending base filesystem
+function mergeFilesystem(base, override) {
+  if (!override) return JSON.parse(JSON.stringify(base));
+
+  const result = JSON.parse(JSON.stringify(base));
+
+  function merge(target, source) {
+    for (const key in source) {
+      if (typeof source[key] === 'object' && !Array.isArray(source[key]) && source[key] !== null) {
+        if (!target[key]) target[key] = {};
+        merge(target[key], source[key]);
+      } else {
+        target[key] = source[key];
+      }
+    }
+  }
+
+  merge(result, override);
+  return result;
+}
+
 export const levels = [
   {
     id: 1,
@@ -8,25 +64,12 @@ export const levels = [
 The server is quiet. You're in someone's home directory — probably an analyst account they forgot to disable.
 
 First things first: figure out where you are and what's around you.`,
-    filesystem: {
-      home: {
-        analyst: {
-          '.bash_history': 'cd /var/log\ncat access.log\nexit',
-          'welcome.txt': 'Welcome to NexusCorp Internal Server.\nAll activity is monitored.\nReport suspicious behavior to security@nexuscorp.internal',
-          documents: {
-            'memo.txt': 'Team — remember to update your passwords this quarter. -Admin',
-            'schedule.txt': 'Monday: Team standup\nTuesday: Server maintenance\nWednesday: Security audit',
-          },
-          internal: {
-            'contacts.txt': 'IT Support: ext 4357\nSecurity: ext 9111\nHR: ext 2200',
-            projects: {},
-          },
-        },
-      },
+    filesystem: mergeFilesystem(BASE_FILESYSTEM, {
       var: {
         messages: 'System Notice: Scheduled maintenance on Saturday.\nSystem Notice: New security policies in effect.\nSystem Notice: Report any suspicious activity.',
       },
-    },
+    }),
+    protectedFiles: PROTECTED_FILES,
     startDir: '/home/analyst',
     subSteps: [
       {
@@ -46,10 +89,10 @@ First things first: figure out where you are and what's around you.`,
         winCondition: (cmd, output, fs) => cmd.trim().startsWith('ls'),
       },
       {
-        objective: "There's a file called `welcome.txt`. Read it with `cat welcome.txt`.",
+        objective: "There's a file called `welcome.txt`. Print the contents of the file to the terminal (type 'hint' for a hint).",
         hints: [
           'cat displays the contents of a file',
-          'Type: cat welcome.txt',
+          'Syntax: cat [filename]',
         ],
         winCondition: (cmd, output, fs) => cmd.includes('cat') && cmd.includes('welcome.txt'),
       },
@@ -62,30 +105,20 @@ First things first: figure out where you are and what's around you.`,
     title: 'Going Deeper',
     story: `Good. You've got your bearings.
 
-The welcome message mentioned "internal" resources. You noticed a folder called "internal" in the directory listing.
+The welcome message mentioned "internal" directories. You noticed a folder called "internal" in the directory listing.
 
 Time to explore. You need to learn to move around this filesystem.`,
-    filesystem: {
+    filesystem: mergeFilesystem(BASE_FILESYSTEM, {
       home: {
         analyst: {
           '.bash_history': 'ls\ncd internal\nls\nexit',
-          'welcome.txt': 'Welcome to NexusCorp Internal Server.',
-          documents: {
-            'memo.txt': 'Team — remember to update your passwords.',
-          },
           internal: {
             'readme.txt': 'Internal Resources Directory\n\nProjects are stored in /home/analyst/internal/projects\nReports go in /home/analyst/internal/reports',
-            projects: {
-              'project_alpha.txt': 'Project Alpha: Status ACTIVE\nLead: jsmith\nBudget: $2.4M',
-              'project_beta.txt': 'Project Beta: Status PENDING\nLead: mwilson\nBudget: TBD',
-            },
-            reports: {
-              'q1_summary.txt': 'Q1 was strong. Revenue up 12%.',
-            },
           },
         },
       },
-    },
+    }),
+    protectedFiles: PROTECTED_FILES,
     startDir: '/home/analyst',
     subSteps: [
       {
@@ -124,41 +157,25 @@ Time to explore. You need to learn to move around this filesystem.`,
 In Linux, \`.\` means "current directory" and \`..\` means "parent directory".
 
 You're currently in /home/analyst/internal/projects. Time to learn to navigate back.`,
-    filesystem: {
+    filesystem: mergeFilesystem(BASE_FILESYSTEM, {
       home: {
         analyst: {
           '.bash_history': 'cd ..\nls\npwd',
-          'welcome.txt': 'Welcome to NexusCorp Internal Server.',
           documents: {
             'important.txt': 'You found the important file! Well done.',
           },
-          internal: {
-            'readme.txt': 'Internal directory',
-            projects: {
-              'project_alpha.txt': 'Project Alpha details',
-            },
-            reports: {
-              'findings.txt': 'Security findings: None reported.',
-            },
-          },
         },
       },
-    },
+    }),
+    protectedFiles: PROTECTED_FILES,
     startDir: '/home/analyst/internal/projects',
     subSteps: [
       {
-        objective: 'Go up one directory using `cd ..`',
+        objective: 'Go back to the /home/analyst directory',
         hints: [
-          '.. means "parent directory"',
+          'Use the cd command to change directory',
           'Type: cd ..',
-        ],
-        winCondition: (cmd, output, fs) => fs.cwd === '/home/analyst/internal',
-      },
-      {
-        objective: 'Good! Now go up one more level with `cd ..`',
-        hints: [
-          'Same command again',
-          'Type: cd ..',
+          'Type: cd /home/analyst to go there directly',
         ],
         winCondition: (cmd, output, fs) => fs.cwd === '/home/analyst',
       },
@@ -185,36 +202,39 @@ You're currently in /home/analyst/internal/projects. Time to learn to navigate b
 The reports directory might have something interesting. Time to start reading files properly.
 
 cat is your best friend here — it dumps file contents straight to the terminal.`,
-    filesystem: {
+    filesystem: mergeFilesystem(BASE_FILESYSTEM, {
       home: {
         analyst: {
           reports: {
-            'budget.txt': 'Q3 Budget Report\nProject Helios: $2.4M approved\nProject Aurora: $800K pending',
-            'staffing.txt': 'Recent Personnel Changes\nJ. Martinez hired — Project Helios lead\nK. Chen transferred — Project Aurora',
+            'budget.txt': 'Q3 Budget Report\nProject "Kill All Humans": $2.4B approved\nProject "Puppy Love": $800K pending',
+            'staffing.txt': 'Recent Personnel Changes\nJ. T-virus hired — Project "Kill All Humans" lead\nJ. Bond transferred — Project "Puppy Love"',
           },
           internal: {
-            'memo.txt': 'All Helios personnel: report to Lab 3 immediately.',
+            'memo.txt': 'All personnel: report to Lab 3 immediately.',
           },
         },
       },
-    },
+    }),
+    protectedFiles: PROTECTED_FILES,
     startDir: '/home/analyst',
     subSteps: [
       {
-        objective: 'Read the budget report inside the `reports/` directory.',
+        objective: 'Read the budget report.',
         hints: [
           'cat can read files in subdirectories: cat path/to/file',
+          'Syntax: cat path/to/filename',
           'Try: cat reports/budget.txt',
         ],
-        winCondition: (cmd, output, fs) => output.includes('Helios'),
+        winCondition: (cmd, output, fs) => output.includes('Kill All Humans') || output.includes('Puppy Love'),
       },
       {
         objective: 'Now read the staffing report.',
         hints: [
           'Same idea — different file in the same directory',
+          'Syntax: cat path/to/filename',
           'Try: cat reports/staffing.txt',
         ],
-        winCondition: (cmd, output, fs) => output.includes('Martinez'),
+        winCondition: (cmd, output, fs) => output.includes('T-virus') || output.includes('Bond'),
       },
       {
         objective: 'Read both reports in a single command.',
@@ -238,22 +258,24 @@ In Linux, you can redirect output into a file using >.
 echo "hello" > file.txt creates file.txt with the text "hello".
 
 If the file already exists, > overwrites it completely.`,
-    filesystem: {
+    filesystem: mergeFilesystem(BASE_FILESYSTEM, {
       home: {
         analyst: {
           reports: {
-            'budget.txt': 'Project Helios: $2.4M',
-            'staffing.txt': 'J. Martinez — Helios lead',
+            'budget.txt': 'Project "Kill All Humans": $2.4B approved',
+            'staffing.txt': 'J. T-virus — Project lead',
           },
         },
       },
-    },
+    }),
+    protectedFiles: PROTECTED_FILES,
     startDir: '/home/analyst',
     subSteps: [
       {
         objective: 'Create a file called `notes.txt` using echo and `>`.',
         hints: [
-          'echo "text" > filename writes text to a new file',
+          'echo outputs text, > redirects it to a file',
+          'Syntax: echo "text" > filename',
           'Try: echo "started investigating" > notes.txt',
         ],
         winCondition: (cmd, output, fs) => fs.readFile('notes.txt') !== null,
@@ -262,6 +284,7 @@ If the file already exists, > overwrites it completely.`,
         objective: 'Read your notes back with cat.',
         hints: [
           'You know how to do this one already',
+          'Syntax: cat filename',
           'Try: cat notes.txt',
         ],
         winCondition: (cmd, output, fs) => {
@@ -272,7 +295,8 @@ If the file already exists, > overwrites it completely.`,
         objective: 'Overwrite your notes with new intel using `>` again.',
         hints: [
           '> replaces the entire file contents — try it again on notes.txt',
-          'Try: echo "Project Helios is the target" > notes.txt',
+          'Syntax: echo "text" > filename',
+          'Try: echo "found something suspicious" > notes.txt',
         ],
         winCondition: (cmd, output, fs) => {
           return cmd.includes('>') && !cmd.includes('>>') && cmd.includes('notes.txt');
@@ -290,31 +314,34 @@ There's another redirect operator: >>.
 It appends to a file instead of overwriting.
 
 echo "new line" >> file.txt adds to the end of file.txt.`,
-    filesystem: {
+    filesystem: mergeFilesystem(BASE_FILESYSTEM, {
       home: {
         analyst: {
-          'dossier.txt': 'Investigation Log\n- Server access: confirmed\n- Target: Project Helios\n',
+          'dossier.txt': 'Investigation Log\n- Server access: confirmed\n- Suspicious projects detected\n',
           reports: {
-            'budget.txt': 'Project Helios: $2.4M approved',
+            'budget.txt': 'Project "Kill All Humans": $2.4B approved',
           },
         },
       },
-    },
+    }),
+    protectedFiles: PROTECTED_FILES,
     startDir: '/home/analyst',
     subSteps: [
       {
         objective: 'Read the existing dossier.',
         hints: [
           'There is a file called dossier.txt right here',
+          'Syntax: cat filename',
           'Try: cat dossier.txt',
         ],
-        winCondition: (cmd, output, fs) => output.includes('Project Helios'),
+        winCondition: (cmd, output, fs) => output.includes('Investigation Log'),
       },
       {
         objective: 'Append a new finding to the dossier using `>>`.',
         hints: [
-          '>> adds to the end of a file without erasing it',
-          'Try: echo "- New finding: budget is $2.4M" >> dossier.txt',
+          '>> appends to a file without erasing it',
+          'Syntax: echo "text" >> filename',
+          'Try: echo "- New finding: suspicious budgets detected" >> dossier.txt',
         ],
         winCondition: (cmd, output, fs) => {
           const content = fs.readFile('dossier.txt');
@@ -324,7 +351,8 @@ echo "new line" >> file.txt adds to the end of file.txt.`,
       {
         objective: 'Read the dossier again to confirm your addition.',
         hints: [
-          'cat it again — you should see both the original and your new line',
+          'cat displays file contents',
+          'You should see both the original and your new line',
           'Try: cat dossier.txt',
         ],
         winCondition: (cmd, output, fs) => {
@@ -342,25 +370,27 @@ echo "new line" >> file.txt adds to the end of file.txt.`,
 mkdir creates new directories. cp copies files.
 
 A good analyst keeps their evidence in one place.`,
-    filesystem: {
+    filesystem: mergeFilesystem(BASE_FILESYSTEM, {
       home: {
         analyst: {
           reports: {
-            'budget.txt': 'Project Helios: $2.4M approved',
-            'staffing.txt': 'J. Martinez — Helios lead',
+            'budget.txt': 'Project "Kill All Humans": $2.4B approved\nProject Alpha: $9.1 trillion approved',
+            'staffing.txt': 'J. T-virus — Project "Kill All Humans" lead\nHuman deaths up 2000% this quarter',
           },
           internal: {
-            'memo.txt': 'All Helios personnel: report to Lab 3.',
+            'memo.txt': 'All personnel: report to Lab 3 immediately. Bring protective equipment.',
           },
         },
       },
-    },
+    }),
+    protectedFiles: PROTECTED_FILES,
     startDir: '/home/analyst',
     subSteps: [
       {
         objective: 'Create a directory called `evidence` to hold your findings.',
         hints: [
           'mkdir creates a new directory',
+          'Syntax: mkdir dirname',
           'Try: mkdir evidence',
         ],
         winCondition: (cmd, output, fs) => fs.listDir('evidence') !== null,
@@ -368,7 +398,8 @@ A good analyst keeps their evidence in one place.`,
       {
         objective: 'Copy the budget report into your evidence directory.',
         hints: [
-          'cp source destination — if dest is a directory, the file goes inside it',
+          'cp copies files',
+          'Syntax: cp source destination',
           'Try: cp reports/budget.txt evidence/',
         ],
         winCondition: (cmd, output, fs) => fs.readFile('evidence/budget.txt') !== null,
@@ -377,6 +408,7 @@ A good analyst keeps their evidence in one place.`,
         objective: 'Copy the staffing report into evidence as well.',
         hints: [
           'Same idea — different source file',
+          'Syntax: cp source destination',
           'Try: cp reports/staffing.txt evidence/',
         ],
         winCondition: (cmd, output, fs) => fs.readFile('evidence/staffing.txt') !== null,
@@ -392,12 +424,12 @@ A good analyst keeps their evidence in one place.`,
 mv moves (or renames) files. rm removes them entirely.
 
 Be careful with rm — there's no undo.`,
-    filesystem: {
+    filesystem: mergeFilesystem(BASE_FILESYSTEM, {
       home: {
         analyst: {
           evidence: {
-            'budget.txt': 'Project Helios: $2.4M',
-            'staffing.txt': 'J. Martinez — Helios lead',
+            'budget.txt': 'Project "Kill All Humans": $2.4B',
+            'staffing.txt': 'J. T-virus — Project lead',
           },
           classified: {},
           'temp.log': 'debug output from 02:14 — analyst session',
@@ -407,13 +439,15 @@ Be careful with rm — there's no undo.`,
           },
         },
       },
-    },
+    }),
+    protectedFiles: PROTECTED_FILES,
     startDir: '/home/analyst',
     subSteps: [
       {
         objective: 'Move the budget report into the `classified` directory.',
         hints: [
-          'mv source destination — works like cp but removes the original',
+          'mv moves files (like cp but removes the original)',
+          'Syntax: mv source destination',
           'Try: mv evidence/budget.txt classified/',
         ],
         winCondition: (cmd, output, fs) => {
@@ -423,7 +457,8 @@ Be careful with rm — there's no undo.`,
       {
         objective: "Delete the temp log — it's evidence you were here.",
         hints: [
-          'rm removes a file permanently',
+          'rm removes a file permanently (no undo!)',
+          'Syntax: rm filename',
           'Try: rm temp.log',
         ],
         winCondition: (cmd, output, fs) => fs.readFile('temp.log') === null,
@@ -431,7 +466,8 @@ Be careful with rm — there's no undo.`,
       {
         objective: 'Delete the entire old_logs directory.',
         hints: [
-          'rm needs -r to remove directories (and everything inside)',
+          'rm -r removes directories and everything inside',
+          'Syntax: rm -r dirname',
           'Try: rm -r old_logs',
         ],
         winCondition: (cmd, output, fs) => fs.listDir('old_logs') === null,
@@ -441,45 +477,49 @@ Be careful with rm — there's no undo.`,
   {
     id: 9,
     chapter: 3,
-    title: 'The Kill Switch',
-    story: `Deep in the server you found a script called kill_switch.sh.
+    title: 'The Antidote',
+    story: `Deep in the server you found a script called antidote.sh.
 
-It's supposed to restore public internet access — the one thing Nexus Corp locked down.
+The T-virus is spreading. This script should contain the cure formula.
 
 But it won't run. Something's wrong with the permissions.`,
-    filesystem: {
+    filesystem: mergeFilesystem(BASE_FILESYSTEM, {
       home: {
         analyst: {
-          'kill_switch.sh': 'ACCESS GRANTED: Public internet restored',
-          'readme.txt': 'The script needs to be executable. Use chmod +x, then run it with ./kill_switch.sh',
+          'antidote.sh': 'T-VIRUS ANTIDOTE DATABASE\nAccessing cure formula...\n\nERROR: NO KNOWN CURE\n\nSystem status: The Cheat is not dead.',
+          'readme.txt': 'The script needs to be executable. Use chmod +x, then run it with ./antidote.sh',
         },
       },
-    },
+    }),
+    protectedFiles: PROTECTED_FILES,
     startDir: '/home/analyst',
     subSteps: [
       {
         objective: 'Read the readme to understand what needs to be done.',
         hints: [
           'cat can read files',
+          'Syntax: cat filename',
           'Try: cat readme.txt',
         ],
         winCondition: (cmd, output, fs) => output.includes('chmod'),
       },
       {
-        objective: 'Make kill_switch.sh executable with chmod.',
+        objective: 'Make antidote.sh executable with chmod.',
         hints: [
-          'chmod +x filename makes a file executable',
-          'Try: chmod +x kill_switch.sh',
+          'chmod changes file permissions',
+          'Syntax: chmod +x filename',
+          'Try: chmod +x antidote.sh',
         ],
-        winCondition: (cmd, output, fs) => fs.getPermissions('kill_switch.sh').has('x'),
+        winCondition: (cmd, output, fs) => fs.getPermissions('antidote.sh').has('x'),
       },
       {
-        objective: 'Run the script.',
+        objective: 'Run the script to find the cure.',
         hints: [
-          './filename runs a script in the current directory',
-          'Try: ./kill_switch.sh',
+          './ runs a script in the current directory',
+          'Syntax: ./scriptname',
+          'Try: ./antidote.sh',
         ],
-        winCondition: (cmd, output, fs) => output.includes('ACCESS GRANTED'),
+        winCondition: (cmd, output, fs) => output.includes('NO KNOWN CURE'),
       },
     ],
   },

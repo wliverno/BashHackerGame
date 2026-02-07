@@ -2,6 +2,16 @@ import { levels } from '../gameplay/levels.js';
 import { createFilesystem } from '../engine/filesystem.js';
 import { executePipeline } from '../engine/executor.js';
 
+function checkProtectedFiles(fs, protectedFiles) {
+  for (const filepath of protectedFiles) {
+    const file = fs.readFile(filepath);
+    if (file === null) {
+      return filepath; // Return the missing file path
+    }
+  }
+  return null; // All protected files present
+}
+
 export function createGame() {
   let currentLevel = 0;
   let currentSubStep = 0;
@@ -49,6 +59,18 @@ export function createGame() {
       return levels[currentLevel].title;
     },
 
+    restartLevel() {
+      hintIndex = 0;
+      currentSubStep = 0;
+      fs = loadLevel(currentLevel);
+      return {
+        restarted: true,
+        story: this.getStory(),
+        levelTitle: this.getLevelTitle(),
+        objective: this.getObjective(),
+      };
+    },
+
     runCommand(input) {
       if (input.trim() === 'hint') {
         const hint = this.getNextHint();
@@ -61,6 +83,18 @@ export function createGame() {
       const result = executePipeline(input, fs);
 
       const level = levels[currentLevel];
+
+      // Check if any protected files were deleted/moved
+      if (level.protectedFiles) {
+        const missingFile = checkProtectedFiles(fs, level.protectedFiles);
+        if (missingFile) {
+          result.gameOver = true;
+          result.missingFile = missingFile;
+          result.output = `\nSYSTEM ALERT: Critical file destroyed.\nSecurity breach detected.\nConnection terminated.\n\nPress any key to restart level...`;
+          return result;
+        }
+      }
+
       const step = level.subSteps[currentSubStep];
 
       if (step.winCondition(input, result.output, fs)) {

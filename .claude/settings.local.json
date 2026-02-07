@@ -5,7 +5,26 @@
       "Bash(npm install:*)",
       "Bash(git init:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(npm test:*)",
+      "Bash(node:*)",
+      "Bash(curl:*)",
+      "Bash(netstat:*)",
+      "Bash(ss:*)",
+      "Bash(python -m http.server:*)",
+      "Bash(git -C \"C:\\\\Users\\\\trollium\\\\Documents\\\\Code\\\\BashTreasureHunt\" log --oneline)",
+      "Bash(npx --yes jest:*)",
+      "Bash(NODE_OPTIONS=--experimental-vm-modules npx jest:*)",
+      "Bash(npx jest:*)",
+      "Bash(xxd:*)",
+      "Bash(git -C \"C:\\\\Users\\\\trollium\\\\Documents\\\\Code\\\\BashTreasureHunt\" status)",
+      "Bash(git -C \"C:\\\\Users\\\\trollium\\\\Documents\\\\Code\\\\BashTreasureHunt\" diff --cached)",
+      "Bash(git -C \"C:\\\\Users\\\\trollium\\\\Documents\\\\Code\\\\BashTreasureHunt\" log -3 --oneline)",
+      "Bash(git -C \"C:\\\\Users\\\\trollium\\\\Documents\\\\Code\\\\BashTreasureHunt\" show --stat HEAD)",
+      "Bash(git mv:*)",
+      "Bash(git rm:*)",
+      "Bash(test:*)",
+      "Bash(ls:*)"
     ]
   }
 }

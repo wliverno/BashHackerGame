@@ -190,11 +190,11 @@ describe('game.runCommand', () => {
     game.runCommand('rm temp.log');
     game.runCommand('rm -r old_logs');
 
-    // Level 9 — The Kill Switch
+    // Level 9 — The Antidote
     expect(game.currentLevel).toBe(8);
     game.runCommand('cat readme.txt');
-    game.runCommand('chmod +x kill_switch.sh');
-    game.runCommand('./kill_switch.sh');
+    game.runCommand('chmod +x antidote.sh');
+    game.runCommand('./antidote.sh');
 
     expect(game.won).toBe(true);
   });
