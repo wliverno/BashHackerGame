@@ -10,9 +10,9 @@ const BASE_FILESYSTEM = {
         'schedule.txt': 'Monday: Team standup\nTuesday: Server maintenance\nWednesday: Security audit',
       },
       internal: {
-        'contacts.txt': 'Dick Cheney (deceased): dcheney@whitehouse.gov\nGeorge Wallace (deceased): gwallace@alabama.gov',
+        'contacts.txt': 'Dick Cheney: dcheney@whitehouse.gov\nGeorge Wallace (deceased): gwallace@alabama.gov',
         projects: {
-          'project_alpha.txt': 'Project Alpha: Status ACTIVE\nLead: dtrump@whitehouse.gov\nBudget: $9.1 trillion',
+          'project_alpha.txt': 'Project Alpha: Status ACTIVE\nLead: dkoch@kochindustries.com\nBudget: $9.1 trillion',
           'project_tango.txt': 'Project Tango: Status FAILED',
         },
         reports: {
@@ -520,6 +520,173 @@ But it won't run. Something's wrong with the permissions.`,
           'Try: ./antidote.sh',
         ],
         winCondition: (cmd, output, fs) => output.includes('NO KNOWN CURE'),
+      },
+    ],
+  },
+  {
+    id: 10,
+    chapter: 4,
+    title: 'Data Streams',
+    story: `You've found a data dump — thousands of lines of unorganized logs.
+
+Sifting through this manually would take hours. But you don't need to.
+
+Pipes let you chain commands together. The output of one becomes the input of the next.
+
+Time to learn the power of pipelines.`,
+    filesystem: mergeFilesystem(BASE_FILESYSTEM, {
+      home: {
+        analyst: {
+          'access.log': 'User login: admin\nUser login: analyst\nUser logout: admin\nUser login: guest\nUser logout: analyst\nUser login: admin\nUser logout: guest\nError: failed login attempt',
+          'data.txt': 'zebra\napple\nbanana\ncherry\napple\nzebra\ndate',
+          'report.txt': 'Project Alpha findings\nSuspicious activity detected\nBudget anomaly: $9.1T\nStaff changes: 200% increase\nProject status: CLASSIFIED',
+        },
+      },
+    }),
+    protectedFiles: PROTECTED_FILES,
+    startDir: '/home/analyst',
+    subSteps: [
+      {
+        objective: 'Count how many lines are in access.log using `cat access.log | wc`.',
+        hints: [
+          'The pipe character | sends output from one command to another',
+          'wc counts lines, words, and characters',
+          'Type: cat access.log | wc',
+        ],
+        winCondition: (cmd, output, fs) => cmd.includes('cat') && cmd.includes('access.log') && cmd.includes('|') && cmd.includes('wc'),
+      },
+      {
+        objective: 'Sort the lines in data.txt using `cat data.txt | sort`.',
+        hints: [
+          'sort arranges lines in alphabetical order',
+          'Pipe the cat output into sort',
+          'Type: cat data.txt | sort',
+        ],
+        winCondition: (cmd, output, fs) => cmd.includes('cat') && cmd.includes('data.txt') && cmd.includes('|') && cmd.includes('sort'),
+      },
+      {
+        objective: 'Find all lines in access.log containing "admin" using grep.',
+        hints: [
+          'grep searches for patterns in text',
+          'Syntax: cat file | grep pattern',
+          'Type: cat access.log | grep admin',
+        ],
+        winCondition: (cmd, output, fs) => {
+          return cmd.includes('grep') && cmd.includes('admin') && output.includes('admin');
+        },
+      },
+    ],
+  },
+  {
+    id: 11,
+    chapter: 4,
+    title: 'Pipeline Power',
+    story: `You're getting the hang of this.
+
+Pipes can be chained together — multiple stages, each refining the data further.
+
+The Umbrella logs are starting to reveal patterns. Time to dig deeper.`,
+    filesystem: mergeFilesystem(BASE_FILESYSTEM, {
+      home: {
+        analyst: {
+          'events.log': 'ERROR: database connection failed\nWARNING: low memory\nINFO: user login\nERROR: file not found\nINFO: server started\nERROR: timeout\nWARNING: disk space low\nINFO: backup complete',
+          'employees.txt': 'Alice Johnson\nBob Smith\nCharlie Brown\nDiana Prince\nEve Adams\nFrank Castle\nGrace Hopper\nHank Pym',
+          'numbers.txt': '42\n7\n23\n1\n99\n12\n5\n67',
+        },
+      },
+    }),
+    protectedFiles: PROTECTED_FILES,
+    startDir: '/home/analyst',
+    subSteps: [
+      {
+        objective: 'Find all ERROR lines in events.log and count them.',
+        hints: [
+          'First grep for ERROR, then pipe to wc',
+          'Chain commands with |',
+          'Type: cat events.log | grep ERROR | wc',
+        ],
+        winCondition: (cmd, output, fs) => {
+          return cmd.includes('grep') && cmd.includes('ERROR') && cmd.includes('wc') && cmd.match(/\|/g)?.length >= 2;
+        },
+      },
+      {
+        objective: 'Get the first 3 lines of the sorted employees list.',
+        hints: [
+          'Use sort to alphabetize, then head to get first lines',
+          'head -n 3 shows first 3 lines',
+          'Type: cat employees.txt | sort | head -n 3',
+        ],
+        winCondition: (cmd, output, fs) => {
+          return cmd.includes('sort') && cmd.includes('head') && output.includes('Alice');
+        },
+      },
+      {
+        objective: 'Sort the numbers in numbers.txt and show the last 2.',
+        hints: [
+          'Use sort -n for numeric sort, tail -n 2 for last 2 lines',
+          'Chain: sort, then tail',
+          'Type: cat numbers.txt | sort -n | tail -n 2',
+        ],
+        winCondition: (cmd, output, fs) => {
+          return cmd.includes('sort') && cmd.includes('tail') && output.includes('99');
+        },
+      },
+    ],
+  },
+  {
+    id: 12,
+    chapter: 4,
+    title: 'The Evidence Dossier',
+    story: `You've collected enough fragments. Time to compile the evidence.
+
+Pipes and redirects work together — you can process data with pipelines, then save the results.
+
+Build your final dossier. The evidence is damning.`,
+    filesystem: mergeFilesystem(BASE_FILESYSTEM, {
+      home: {
+        analyst: {
+          'suspects.txt': 'Project lead: Dick Cheney\nCFO: George Wallace\nDirector: David Koch\nChief Scientist: Henry Kissinger',
+          'transactions.txt': 'Date: 2023-01-15, Amount: $2.4B, Project: Kill All Humans\nDate: 2023-02-03, Amount: $9.1T, Project: Alpha\nDate: 2023-03-12, Amount: $800K, Project: Puppy Love\nDate: 2023-04-20, Amount: $1.2B, Project: Kill All Humans',
+          evidence: {},
+        },
+      },
+    }),
+    protectedFiles: PROTECTED_FILES,
+    startDir: '/home/analyst',
+    subSteps: [
+      {
+        objective: 'Find all lines in suspects.txt containing "Koch" and save them to evidence/suspect.txt.',
+        hints: [
+          'Use grep to filter, then > to redirect output',
+          'Syntax: cat file | grep pattern > output',
+          'Type: cat suspects.txt | grep Koch > evidence/suspect.txt',
+        ],
+        winCondition: (cmd, output, fs) => {
+          return cmd.includes('grep') && cmd.includes('Koch') && cmd.includes('>') && fs.readFile('evidence/suspect.txt')?.includes('Koch');
+        },
+      },
+      {
+        objective: 'Extract all "Kill All Humans" transactions and save to evidence/crimes.txt.',
+        hints: [
+          'grep for the project name, redirect with >',
+          'Type: cat transactions.txt | grep "Kill All Humans" > evidence/crimes.txt',
+        ],
+        winCondition: (cmd, output, fs) => {
+          const crimesFile = fs.readFile('evidence/crimes.txt');
+          return cmd.includes('grep') && cmd.includes('Kill All Humans') && cmd.includes('>') && crimesFile && crimesFile.includes('Kill All Humans');
+        },
+      },
+      {
+        objective: 'Create a sorted list of all suspects and append it to evidence/dossier.txt.',
+        hints: [
+          'cat suspects.txt | sort to get sorted list',
+          'Use >> to append (not >)',
+          'Type: cat suspects.txt | sort >> evidence/dossier.txt',
+        ],
+        winCondition: (cmd, output, fs) => {
+          const dossier = fs.readFile('evidence/dossier.txt');
+          return cmd.includes('sort') && cmd.includes('>>') && cmd.includes('dossier.txt') && dossier && dossier.length > 0;
+        },
       },
     ],
   },

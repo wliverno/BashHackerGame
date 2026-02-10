@@ -133,7 +133,7 @@ export function createFilesystem(tree = {}, homePath = '/home/analyst') {
       }
 
       if (options.append && existing) {
-        existing.content += content;
+        existing.content += '\n' + content;
       } else {
         parent.children[fileName] = {
           type: 'file',

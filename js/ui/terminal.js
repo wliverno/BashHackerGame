@@ -60,20 +60,34 @@ export function getCompletions(str, fs) {
     return COMMAND_NAMES.filter(c => c.startsWith(partial));
   }
 
-  // After a command — complete file/dir names from cwd
+  // After a command — complete file/dir names
   const cmd = parts[0];
   const partial = endsWithSpace ? '' : parts[parts.length - 1];
   const prefix = endsWithSpace ? str : parts.slice(0, -1).join(' ') + ' ';
-  const entries = fs.listDir('.') || [];
+
+  // Parse the partial to extract directory path and filename prefix
+  const lastSlash = partial.lastIndexOf('/');
+  let dir = '.';
+  let filePrefix = partial;
+  let pathPrefix = '';
+
+  if (lastSlash !== -1) {
+    pathPrefix = partial.substring(0, lastSlash + 1);
+    filePrefix = partial.substring(lastSlash + 1);
+    dir = pathPrefix || '/';
+  }
+
+  const entries = fs.listDir(dir) || [];
 
   if (cmd === 'cd') {
     const dirs = entries.filter(e => e.type === 'dir').map(e => e.name);
-    return ['..', ...dirs]
-      .filter(n => n.startsWith(partial))
-      .map(n => prefix + n);
+    const completions = ['..', ...dirs]
+      .filter(n => n.startsWith(filePrefix));
+
+    return completions.map(n => prefix + pathPrefix + n);
   }
 
   return entries.map(e => e.name)
-    .filter(n => n.startsWith(partial))
-    .map(n => prefix + n);
+    .filter(n => n.startsWith(filePrefix))
+    .map(n => prefix + pathPrefix + n);
 }

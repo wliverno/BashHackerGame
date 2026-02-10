@@ -380,3 +380,198 @@ describe('chmod', () => {
     expect(result.exitCode).toBe(1);
   });
 });
+
+// Text processing commands
+describe('wc', () => {
+  let fs;
+
+  beforeEach(() => {
+    fs = createFilesystem({
+      home: {
+        analyst: {
+          'test.txt': 'hello world\nfoo bar\nbaz',
+        },
+      },
+    });
+    fs.cwd = '/home/analyst';
+  });
+
+  test('counts lines, words, and chars from stdin', () => {
+    const result = commands.wc([], 'hello world\ntest', fs);
+    expect(result.stdout).toContain('2');
+    expect(result.stdout).toContain('3');
+    expect(result.exitCode).toBe(0);
+  });
+
+  test('counts lines, words, and chars from file', () => {
+    const result = commands.wc(['test.txt'], '', fs);
+    expect(result.stdout).toContain('3');
+    expect(result.stdout).toContain('5');
+    expect(result.exitCode).toBe(0);
+  });
+
+  test('returns error for non-existent file', () => {
+    const result = commands.wc(['nope.txt'], '', fs);
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain('No such file or directory');
+  });
+});
+
+describe('sort', () => {
+  let fs;
+
+  beforeEach(() => {
+    fs = createFilesystem({
+      home: {
+        analyst: {
+          'list.txt': 'banana\napple\ncherry',
+        },
+      },
+    });
+    fs.cwd = '/home/analyst';
+  });
+
+  test('sorts lines from stdin', () => {
+    const result = commands.sort([], 'zebra\napple\nbanana', fs);
+    expect(result.stdout).toBe('apple\nbanana\nzebra');
+    expect(result.exitCode).toBe(0);
+  });
+
+  test('sorts lines from file', () => {
+    const result = commands.sort(['list.txt'], '', fs);
+    expect(result.stdout).toContain('apple');
+    expect(result.exitCode).toBe(0);
+  });
+
+  test('returns error for non-existent file', () => {
+    const result = commands.sort(['nope.txt'], '', fs);
+    expect(result.exitCode).toBe(1);
+  });
+});
+
+describe('head', () => {
+  let fs;
+
+  beforeEach(() => {
+    fs = createFilesystem({
+      home: {
+        analyst: {
+          'lines.txt': '1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12',
+        },
+      },
+    });
+    fs.cwd = '/home/analyst';
+  });
+
+  test('shows first 10 lines by default from stdin', () => {
+    const result = commands.head([], '1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11', fs);
+    expect(result.stdout.split('\n').length).toBe(10);
+    expect(result.exitCode).toBe(0);
+  });
+
+  test('shows first N lines with -n flag', () => {
+    const result = commands.head(['-n', '3', 'lines.txt'], '', fs);
+    expect(result.stdout).toBe('1\n2\n3');
+    expect(result.exitCode).toBe(0);
+  });
+
+  test('returns error for non-existent file', () => {
+    const result = commands.head(['nope.txt'], '', fs);
+    expect(result.exitCode).toBe(1);
+  });
+});
+
+describe('tail', () => {
+  let fs;
+
+  beforeEach(() => {
+    fs = createFilesystem({
+      home: {
+        analyst: {
+          'lines.txt': '1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12',
+        },
+      },
+    });
+    fs.cwd = '/home/analyst';
+  });
+
+  test('shows last 10 lines by default from stdin', () => {
+    const result = commands.tail([], '1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11', fs);
+    expect(result.stdout.split('\n').length).toBe(10);
+    expect(result.exitCode).toBe(0);
+  });
+
+  test('shows last N lines with -n flag', () => {
+    const result = commands.tail(['-n', '3', 'lines.txt'], '', fs);
+    expect(result.stdout).toBe('10\n11\n12');
+    expect(result.exitCode).toBe(0);
+  });
+
+  test('returns error for non-existent file', () => {
+    const result = commands.tail(['nope.txt'], '', fs);
+    expect(result.exitCode).toBe(1);
+  });
+});
+
+describe('grep', () => {
+  let fs;
+
+  beforeEach(() => {
+    fs = createFilesystem({
+      home: {
+        analyst: {
+          'test.txt': 'hello world\nfoo bar\nHELLO WORLD',
+        },
+      },
+    });
+    fs.cwd = '/home/analyst';
+  });
+
+  test('filters lines from stdin', () => {
+    const result = commands.grep(['hello'], 'hello world\nfoo bar\ngoodbye', fs);
+    expect(result.stdout).toBe('hello world');
+    expect(result.exitCode).toBe(0);
+  });
+
+  test('filters lines from file', () => {
+    const result = commands.grep(['hello', 'test.txt'], '', fs);
+    expect(result.stdout).toBe('hello world');
+    expect(result.exitCode).toBe(0);
+  });
+
+  test('case insensitive with -i flag', () => {
+    const result = commands.grep(['-i', 'hello', 'test.txt'], '', fs);
+    expect(result.stdout).toContain('hello world');
+    expect(result.stdout).toContain('HELLO WORLD');
+    expect(result.exitCode).toBe(0);
+  });
+
+  test('returns exit code 1 when no matches', () => {
+    const result = commands.grep(['nonexistent'], 'hello world', fs);
+    expect(result.exitCode).toBe(1);
+  });
+
+  test('returns error for missing pattern', () => {
+    const result = commands.grep([], 'hello', fs);
+    expect(result.exitCode).toBe(2);
+    expect(result.stderr).toContain('missing pattern');
+  });
+
+  test('returns error for non-existent file', () => {
+    const result = commands.grep(['pattern', 'nope.txt'], '', fs);
+    expect(result.exitCode).toBe(2);
+  });
+
+  test('works the same with file argument as with stdin', () => {
+    // Using stdin (pipe)
+    const stdinResult = commands.grep(['hello'], 'hello world\nfoo bar\ngoodbye', fs);
+
+    // Using file argument
+    fs.writeFile('test-grep.txt', 'hello world\nfoo bar\ngoodbye');
+    const fileResult = commands.grep(['hello', 'test-grep.txt'], '', fs);
+
+    // Should produce the same output
+    expect(fileResult.stdout).toBe(stdinResult.stdout);
+    expect(fileResult.stdout).toBe('hello world');
+  });
+});

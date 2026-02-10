@@ -73,8 +73,8 @@ open index.html
 - ✅ Chapter 1: Navigation (ls, cd, pwd)
 - ✅ Chapter 2: File I/O (cat, echo, redirects)
 - ✅ Chapter 3: File Operations (mkdir, cp, mv, rm, chmod)
-- 🔜 Chapter 4: Pipes (|, wc, sort)
-- 📋 Chapters 5-7: grep, find, sed
+- ✅ Chapter 4: Pipes & Text Processing (wc, sort, grep, head, tail)
+- 📋 Chapters 5-7: find, sed, advanced scripting
 
 ## License
 

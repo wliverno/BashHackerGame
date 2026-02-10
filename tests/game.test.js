@@ -36,7 +36,7 @@ describe('executePipeline', () => {
   test('handles redirect append', () => {
     fs.writeFile('out.txt', 'line1');
     executePipeline('echo "line2" >> out.txt', fs);
-    expect(fs.readFile('out.txt')).toBe('line1line2');
+    expect(fs.readFile('out.txt')).toBe('line1\nline2');
   });
 
   test('returns error output', () => {
@@ -78,6 +78,45 @@ describe('executePipeline', () => {
     const result = executePipeline('./nope.sh', fs);
     expect(result.output).toContain('No such file or directory');
     expect(result.exitCode).toBe(127);
+  });
+
+  test('expands * wildcard', () => {
+    const fs = createFilesystem({
+      home: { analyst: { 'test1.txt': 'content1', 'test2.txt': 'content2', 'other.log': 'log' } },
+    });
+    fs.cwd = '/home/analyst';
+    const result = executePipeline('ls *.txt', fs);
+    expect(result.output).toContain('test1.txt');
+    expect(result.output).toContain('test2.txt');
+    expect(result.output).not.toContain('other.log');
+  });
+
+  test('expands ? wildcard', () => {
+    const fs = createFilesystem({
+      home: { analyst: { 'test1.txt': 'c1', 'test2.txt': 'c2', 'test10.txt': 'c10' } },
+    });
+    fs.cwd = '/home/analyst';
+    const result = executePipeline('ls test?.txt', fs);
+    expect(result.output).toContain('test1.txt');
+    expect(result.output).toContain('test2.txt');
+    expect(result.output).not.toContain('test10.txt');
+  });
+
+  test('expands wildcards in subdirectories', () => {
+    const fs = createFilesystem({
+      home: { analyst: { subdir: { 'file1.txt': 'content1', 'file2.txt': 'content2' } } },
+    });
+    fs.cwd = '/home/analyst';
+    const result = executePipeline('cat subdir/*.txt', fs);
+    expect(result.output).toContain('content1');
+    expect(result.output).toContain('content2');
+  });
+
+  test('leaves wildcard as-is when no matches', () => {
+    const fs = createFilesystem({ home: { analyst: {} } });
+    fs.cwd = '/home/analyst';
+    const result = executePipeline('ls *.nonexistent', fs);
+    expect(result.output).toContain('No such file or directory');
   });
 });
 
@@ -196,6 +235,24 @@ describe('game.runCommand', () => {
     game.runCommand('chmod +x antidote.sh');
     game.runCommand('./antidote.sh');
 
+    // Level 10 — Data Streams
+    expect(game.currentLevel).toBe(9);
+    game.runCommand('cat access.log | wc');
+    game.runCommand('cat data.txt | sort');
+    game.runCommand('cat access.log | grep admin');
+
+    // Level 11 — Pipeline Power
+    expect(game.currentLevel).toBe(10);
+    game.runCommand('cat events.log | grep ERROR | wc');
+    game.runCommand('cat employees.txt | sort | head -n 3');
+    game.runCommand('cat numbers.txt | sort -n | tail -n 2');
+
+    // Level 12 — The Evidence Dossier
+    expect(game.currentLevel).toBe(11);
+    game.runCommand('cat suspects.txt | grep Koch > evidence/suspect.txt');
+    game.runCommand('cat transactions.txt | grep "Kill All Humans" > evidence/crimes.txt');
+    game.runCommand('cat suspects.txt | sort >> evidence/dossier.txt');
+
     expect(game.won).toBe(true);
   });
 
@@ -302,5 +359,29 @@ describe('getCompletions', () => {
     const results = getCompletions('ls ', fs);
     expect(results).toContain('ls welcome.txt');
     expect(results).toContain('ls documents');
+  });
+
+  test('completes files in subdirectories', () => {
+    fs.writeFile('documents/report.txt', 'content');
+    fs.writeFile('documents/memo.txt', 'content');
+    const results = getCompletions('cat documents/', fs);
+    expect(results).toContain('cat documents/report.txt');
+    expect(results).toContain('cat documents/memo.txt');
+  });
+
+  test('completes partial filenames in subdirectories', () => {
+    fs.writeFile('documents/report.txt', 'content');
+    fs.writeFile('documents/memo.txt', 'content');
+    const results = getCompletions('cat documents/r', fs);
+    expect(results).toEqual(['cat documents/report.txt']);
+  });
+
+  test('cd completes subdirectories', () => {
+    fs.createDir('documents/archive');
+    fs.createDir('documents/drafts');
+    const results = getCompletions('cd documents/', fs);
+    expect(results).toContain('cd documents/..');
+    expect(results).toContain('cd documents/archive');
+    expect(results).toContain('cd documents/drafts');
   });
 });

@@ -1,6 +1,68 @@
 import { parse } from './parser.js';
 import { commands } from './commands/index.js';
 
+// Expand wildcards in arguments
+function expandWildcards(args, fs) {
+  const expandedArgs = [];
+
+  for (const arg of args) {
+    // Skip if no wildcards
+    if (!arg.includes('*') && !arg.includes('?')) {
+      expandedArgs.push(arg);
+      continue;
+    }
+
+    // Parse the path to get directory and pattern
+    const lastSlash = arg.lastIndexOf('/');
+    let dir = '.';
+    let pattern = arg;
+
+    if (lastSlash !== -1) {
+      dir = arg.substring(0, lastSlash) || '/';
+      pattern = arg.substring(lastSlash + 1);
+    }
+
+    // Convert wildcard pattern to regex
+    const regexPattern = pattern
+      .replace(/\./g, '\\.')
+      .replace(/\*/g, '.*')
+      .replace(/\?/g, '.');
+    const regex = new RegExp('^' + regexPattern + '$');
+
+    // Get directory listing
+    const entries = fs.listDir(dir, { showHidden: false });
+
+    if (!entries) {
+      // Directory doesn't exist, leave the arg as-is
+      expandedArgs.push(arg);
+      continue;
+    }
+
+    // Filter entries that match the pattern
+    const matches = entries
+      .filter(entry => regex.test(entry.name))
+      .map(entry => {
+        if (dir === '.') {
+          return entry.name;
+        } else if (dir === '/') {
+          return '/' + entry.name;
+        } else {
+          return dir + '/' + entry.name;
+        }
+      });
+
+    if (matches.length === 0) {
+      // No matches, leave the arg as-is
+      expandedArgs.push(arg);
+    } else {
+      // Add all matches
+      expandedArgs.push(...matches);
+    }
+  }
+
+  return expandedArgs;
+}
+
 export function executePipeline(input, fs) {
   const ast = parse(input);
 
@@ -32,7 +94,10 @@ export function executePipeline(input, fs) {
       };
     }
 
-    lastResult = commands[cmd](args, stdin, fs);
+    // Expand wildcards in arguments
+    const expandedArgs = expandWildcards(args, fs);
+
+    lastResult = commands[cmd](expandedArgs, stdin, fs);
     stdin = lastResult.stdout;
 
     if (lastResult.exitCode !== 0) {

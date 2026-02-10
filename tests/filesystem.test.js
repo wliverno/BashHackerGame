@@ -248,8 +248,8 @@ describe('writeFile', () => {
   });
 
   test('appends to file with append flag', () => {
-    fs.writeFile('existing.txt', ' appended', { append: true });
-    expect(fs.readFile('existing.txt')).toBe('old content appended');
+    fs.writeFile('existing.txt', 'appended', { append: true });
+    expect(fs.readFile('existing.txt')).toBe('old content\nappended');
   });
 
   test('creates file in nested path', () => {
