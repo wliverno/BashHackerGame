@@ -71,6 +71,19 @@ export const commands = {
       };
     }
 
+    // Check restricted directory access
+    if (fs.restrictedDirs) {
+      const absPath = fs.getAbsolutePath(target);
+      const requiredUser = fs.restrictedDirs[absPath];
+      if (requiredUser && fs.currentUser !== requiredUser) {
+        return {
+          stdout: '',
+          stderr: `cd: ${target}: Permission denied`,
+          exitCode: 1,
+        };
+      }
+    }
+
     fs.changeDir(target);
     return {
       stdout: '',

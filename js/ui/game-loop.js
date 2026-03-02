@@ -23,6 +23,8 @@ export function createGame() {
     const level = levels[levelIndex];
     const fs = createFilesystem(level.filesystem);
     fs.cwd = level.startDir;
+    fs.restrictedDirs = level.restrictedDirs || {};
+    fs.currentUser = currentUser;
     return fs;
   };
 
@@ -37,6 +39,7 @@ export function createGame() {
 
     switchUser(user) {
       currentUser = user;
+      fs.currentUser = user;
     },
 
     getObjective() {
