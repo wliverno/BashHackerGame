@@ -575,3 +575,100 @@ describe('grep', () => {
     expect(fileResult.stdout).toBe('hello world');
   });
 });
+
+describe('restricted directories', () => {
+  test('cd blocks entry to restricted dir when user does not match', () => {
+    const fs = createFilesystem({
+      home: {
+        alice: {
+          research: {
+            'data.txt': 'secret',
+          },
+        },
+      },
+    });
+    fs.cwd = '/home/alice';
+    fs.restrictedDirs = { '/home/alice/research': 'alice' };
+    fs.currentUser = 'eve';
+
+    const result = commands.cd(['research'], '', fs);
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain('Permission denied');
+    expect(fs.cwd).toBe('/home/alice');
+  });
+
+  test('cd allows entry to restricted dir when user matches', () => {
+    const fs = createFilesystem({
+      home: {
+        alice: {
+          research: {
+            'data.txt': 'secret',
+          },
+        },
+      },
+    });
+    fs.cwd = '/home/alice';
+    fs.restrictedDirs = { '/home/alice/research': 'alice' };
+    fs.currentUser = 'alice';
+
+    const result = commands.cd(['research'], '', fs);
+    expect(result.exitCode).toBe(0);
+    expect(fs.cwd).toBe('/home/alice/research');
+  });
+
+  test('cd works normally when no restrictedDirs set', () => {
+    const fs = createFilesystem({
+      home: { eve: { docs: {} } },
+    });
+    fs.cwd = '/home/eve';
+
+    const result = commands.cd(['docs'], '', fs);
+    expect(result.exitCode).toBe(0);
+  });
+});
+
+describe('ssh command', () => {
+  test('ssh user@host succeeds when .ssh/id_rsa exists', () => {
+    const fs = createFilesystem({
+      home: { eve: { '.ssh': { 'id_rsa': 'fake-key' } } },
+    });
+    fs.cwd = '/home/eve';
+    fs.homePath = '/home/eve';
+
+    const result = commands.ssh(['alice@megafirm-qlab'], '', fs);
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain('alice');
+    expect(result.switchUser).toBe('alice');
+  });
+
+  test('ssh fails when no .ssh/id_rsa exists', () => {
+    const fs = createFilesystem({
+      home: { eve: {} },
+    });
+    fs.cwd = '/home/eve';
+    fs.homePath = '/home/eve';
+
+    const result = commands.ssh(['alice@megafirm-qlab'], '', fs);
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain('Permission denied');
+  });
+
+  test('ssh fails with no arguments', () => {
+    const fs = createFilesystem({ home: { eve: {} } });
+    fs.cwd = '/home/eve';
+
+    const result = commands.ssh([], '', fs);
+    expect(result.exitCode).toBe(1);
+  });
+
+  test('ssh fails with invalid user@host format', () => {
+    const fs = createFilesystem({
+      home: { eve: { '.ssh': { 'id_rsa': 'key' } } },
+    });
+    fs.cwd = '/home/eve';
+    fs.homePath = '/home/eve';
+
+    const result = commands.ssh(['badformat'], '', fs);
+    expect(result.exitCode).toBe(1);
+  });
+});
