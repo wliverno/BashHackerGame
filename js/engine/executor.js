@@ -127,5 +127,6 @@ export function executePipeline(input, fs) {
     output,
     exitCode: lastResult.exitCode,
     clear: lastResult.clear,
+    switchUser: lastResult.switchUser,
   };
 }

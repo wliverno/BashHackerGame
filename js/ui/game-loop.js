@@ -91,6 +91,13 @@ export function createGame() {
 
       const result = executePipeline(input, fs);
 
+      // Handle user switching (e.g., from ssh command)
+      if (result.switchUser) {
+        currentUser = result.switchUser;
+        fs.currentUser = result.switchUser;
+        fs.homePath = '/home/' + result.switchUser;
+      }
+
       const level = levels[currentLevel];
 
       // Check if any protected files were deleted/moved

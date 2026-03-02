@@ -1,6 +1,6 @@
 import { createGame } from '../js/ui/game-loop.js';
 import { executePipeline } from '../js/engine/executor.js';
-import { getCompletions } from '../js/ui/terminal.js';
+import { getCompletions, formatPrompt } from '../js/ui/terminal.js';
 import { createFilesystem } from '../js/engine/filesystem.js';
 import { levels } from '../js/gameplay/levels.js';
 
@@ -317,6 +317,49 @@ describe('user identity', () => {
     game.switchUser('alice');
     game.restartLevel();
     expect(game.currentUser).toBe('alice');
+  });
+});
+
+describe('ssh user switching in game', () => {
+  test('executePipeline passes through switchUser from ssh command', () => {
+    const fs = createFilesystem({
+      home: { eve: { '.ssh': { 'id_rsa': 'fake-key' } } },
+    });
+    fs.cwd = '/home/eve';
+    fs.homePath = '/home/eve';
+
+    const result = executePipeline('ssh alice@megafirm-qlab', fs);
+    expect(result.switchUser).toBe('alice');
+    expect(result.exitCode).toBe(0);
+  });
+});
+
+describe('formatPrompt for quantum lab', () => {
+  test('shows eve@megafirm-qlab with eve home path', () => {
+    const fs = { cwd: '/home/eve', currentUser: 'eve', homePath: '/home/eve' };
+    const prompt = formatPrompt(fs);
+    expect(prompt).toContain('eve@megafirm-qlab');
+    expect(prompt).toContain('~');
+  });
+
+  test('shows alice@megafirm-qlab after user switch', () => {
+    const fs = { cwd: '/home/alice', currentUser: 'alice', homePath: '/home/alice' };
+    const prompt = formatPrompt(fs);
+    expect(prompt).toContain('alice@megafirm-qlab');
+    expect(prompt).toContain('~');
+  });
+
+  test('shows full path when not in home directory', () => {
+    const fs = { cwd: '/var/data', currentUser: 'eve', homePath: '/home/eve' };
+    const prompt = formatPrompt(fs);
+    expect(prompt).toContain('/var/data');
+  });
+
+  test('replaces home prefix with ~ in subdirectories', () => {
+    const fs = { cwd: '/home/eve/evidence', currentUser: 'eve', homePath: '/home/eve' };
+    const prompt = formatPrompt(fs);
+    expect(prompt).toContain('~/evidence');
+    expect(prompt).not.toContain('/home/eve');
   });
 });
 
