@@ -51,150 +51,140 @@ describe('levels', () => {
 
   test('level 1 win conditions fire correctly', () => {
     const level = levels[0];
-    const mockFs = { cwd: '/home/analyst' };
+    const mockFs = { cwd: '/home/eve' };
 
-    // Step 0: pwd
-    expect(level.subSteps[0].winCondition('pwd', '/home/analyst', mockFs)).toBe(true);
+    expect(level.subSteps[0].winCondition('pwd', '/home/eve', mockFs)).toBe(true);
     expect(level.subSteps[0].winCondition('ls', '', mockFs)).toBe(false);
 
-    // Step 1: ls
-    expect(level.subSteps[1].winCondition('ls', 'readme.txt', mockFs)).toBe(true);
+    expect(level.subSteps[1].winCondition('ls', 'welcome.txt  todo.txt', mockFs)).toBe(true);
     expect(level.subSteps[1].winCondition('pwd', '', mockFs)).toBe(false);
 
-    // Step 2: cat welcome.txt
     expect(level.subSteps[2].winCondition('cat welcome.txt', 'Welcome...', mockFs)).toBe(true);
-    expect(level.subSteps[2].winCondition('cat memo.txt', 'Team...', mockFs)).toBe(false);
+    expect(level.subSteps[2].winCondition('cat todo.txt', 'stuff', mockFs)).toBe(false);
   });
 
   test('level 2 win conditions check cwd', () => {
     const level = levels[1];
 
-    expect(level.subSteps[0].winCondition('cd internal', '', { cwd: '/home/analyst/internal' })).toBe(true);
-    expect(level.subSteps[0].winCondition('cd internal', '', { cwd: '/home/analyst' })).toBe(false);
+    expect(level.subSteps[0].winCondition('cd ..', '', { cwd: '/home' })).toBe(true);
+    expect(level.subSteps[0].winCondition('cd ..', '', { cwd: '/home/eve' })).toBe(false);
 
-    expect(level.subSteps[2].winCondition('cd projects', '', { cwd: '/home/analyst/internal/projects' })).toBe(true);
+    expect(level.subSteps[1].winCondition('ls', 'alice bob eve mallory', { cwd: '/home' })).toBe(true);
+    expect(level.subSteps[1].winCondition('ls', 'alice bob', { cwd: '/home/eve' })).toBe(false);
+
+    expect(level.subSteps[2].winCondition('cd alice', '', { cwd: '/home/alice' })).toBe(true);
+    expect(level.subSteps[2].winCondition('cd bob', '', { cwd: '/home/bob' })).toBe(false);
   });
 
-  test('level 3 win conditions check cwd and output', () => {
+  test('level 3 win conditions check navigation and reading', () => {
     const level = levels[2];
 
-    // Step 0: Navigate back to /home/analyst (accepts cd .. or direct path)
-    expect(level.subSteps[0].winCondition('cd ..', '', { cwd: '/home/analyst' })).toBe(true);
-    expect(level.subSteps[0].winCondition('cd /home/analyst', '', { cwd: '/home/analyst' })).toBe(true);
-    expect(level.subSteps[0].winCondition('cd ..', '', { cwd: '/home/analyst/internal' })).toBe(false);
+    expect(level.subSteps[0].winCondition('ls', 'notes research .ssh', { cwd: '/home/alice' })).toBe(true);
+    expect(level.subSteps[0].winCondition('ls', 'stuff', { cwd: '/home/eve' })).toBe(false);
 
-    // Step 1: Navigate to documents and read important.txt
-    expect(level.subSteps[1].winCondition('cat important.txt', 'You found the important file!', {})).toBe(true);
-    expect(level.subSteps[1].winCondition('cat readme.txt', 'Internal directory', {})).toBe(false);
+    expect(level.subSteps[1].winCondition('cd /home/eve', '', { cwd: '/home/eve' })).toBe(true);
+    expect(level.subSteps[1].winCondition('cd ..', '', { cwd: '/home' })).toBe(false);
+
+    expect(level.subSteps[2].winCondition('cat todo.txt', '1. Review access logs for anomalies', {})).toBe(true);
+    expect(level.subSteps[2].winCondition('cat todo.txt', 'nothing', {})).toBe(false);
   });
 
-  test('level 4 win conditions check cat output and multi-file command', () => {
+  test('level 4 win conditions check reading lab memos', () => {
     const level = levels[3];
 
-    // Step 0: output must mention Kill All Humans or Puppy Love
-    expect(level.subSteps[0].winCondition('cat reports/budget.txt', 'Project "Kill All Humans": $2.4B approved', {})).toBe(true);
-    expect(level.subSteps[0].winCondition('cat reports/budget.txt', 'Project "Puppy Love": $800K pending', {})).toBe(true);
-    expect(level.subSteps[0].winCondition('cat reports/budget.txt', 'Nothing here', {})).toBe(false);
+    expect(level.subSteps[0].winCondition('cat /home/alice/notes/lab_memo.txt', 'Whoever keeps kicking the laser table', {})).toBe(true);
+    expect(level.subSteps[0].winCondition('cat something', 'nothing relevant', {})).toBe(false);
 
-    // Step 1: output must mention T-virus or Bond
-    expect(level.subSteps[1].winCondition('cat reports/staffing.txt', 'J. T-virus hired', {})).toBe(true);
-    expect(level.subSteps[1].winCondition('cat reports/staffing.txt', 'J. Bond transferred', {})).toBe(true);
-    expect(level.subSteps[1].winCondition('cat reports/staffing.txt', 'No one listed', {})).toBe(false);
+    expect(level.subSteps[1].winCondition('cat /home/bob/notes/meeting_notes.txt', 'deliberately introducing interference', {})).toBe(true);
+    expect(level.subSteps[1].winCondition('cat something', 'nothing', {})).toBe(false);
 
-    // Step 2: command must reference both files
-    expect(level.subSteps[2].winCondition('cat reports/budget.txt reports/staffing.txt', 'combined', {})).toBe(true);
-    expect(level.subSteps[2].winCondition('cat reports/budget.txt', 'only one', {})).toBe(false);
+    expect(level.subSteps[2].winCondition('cat /home/alice/notes/lab_memo.txt /home/alice/notes/safety_notice.txt', 'combined', {})).toBe(true);
+    expect(level.subSteps[2].winCondition('cat /home/alice/notes/lab_memo.txt', 'only one', {})).toBe(false);
   });
 
-
-  test('level 5 win conditions check file creation and overwrite via >', () => {
+  test('level 5 win conditions check echo > overwrite', () => {
     const level = levels[4];
-    const hasFile = { readFile: () => 'some content' };
-    const noFile = { readFile: () => null };
 
-    // Step 0: notes.txt must exist in filesystem after command
-    expect(level.subSteps[0].winCondition('echo "hi" > notes.txt', '', hasFile)).toBe(true);
-    expect(level.subSteps[0].winCondition('echo "hi" > notes.txt', '', noFile)).toBe(false);
+    expect(level.subSteps[0].winCondition('cat tasks.txt', '1. Fix the laser table alignment (AGAIN)', {})).toBe(true);
+    expect(level.subSteps[0].winCondition('cat tasks.txt', 'nothing', {})).toBe(false);
 
-    // Step 1: must cat notes.txt and get non-empty output
-    expect(level.subSteps[1].winCondition('cat notes.txt', 'some content', {})).toBe(true);
-    expect(level.subSteps[1].winCondition('ls', 'notes.txt', {})).toBe(false);
-    expect(level.subSteps[1].winCondition('cat notes.txt', '', {})).toBe(false);
+    const overwritten = { readFile: () => 'Tell Alice to fix laser table' };
+    const original = { readFile: () => '1. Fix the laser table alignment (AGAIN)\n2. Recalibrate' };
+    expect(level.subSteps[1].winCondition('echo "Tell Alice" > tasks.txt', '', overwritten)).toBe(true);
+    expect(level.subSteps[1].winCondition('echo "Tell Alice" > tasks.txt', '', original)).toBe(false);
+    expect(level.subSteps[1].winCondition('echo "Tell Alice" >> tasks.txt', '', overwritten)).toBe(false);
 
-    // Step 2: must use > (not >>) targeting notes.txt
-    expect(level.subSteps[2].winCondition('echo "new intel" > notes.txt', '', {})).toBe(true);
-    expect(level.subSteps[2].winCondition('echo "new intel" >> notes.txt', '', {})).toBe(false);
-    expect(level.subSteps[2].winCondition('echo "new intel" > other.txt', '', {})).toBe(false);
+    expect(level.subSteps[2].winCondition('cat tasks.txt', 'Tell Alice to fix laser table', {})).toBe(true);
+    expect(level.subSteps[2].winCondition('ls', '', {})).toBe(false);
+    expect(level.subSteps[2].winCondition('cat tasks.txt', '', {})).toBe(false);
   });
 
-
-  test('level 6 win conditions check append via >> and read-back', () => {
+  test('level 6 win conditions check echo >> append', () => {
     const level = levels[5];
 
-    // Step 0: output must include "Project Helios"
-    expect(level.subSteps[0].winCondition('cat dossier.txt', 'Investigation Log\n- Target: Project Helios', {})).toBe(true);
-    expect(level.subSteps[0].winCondition('cat dossier.txt', 'Nothing useful', {})).toBe(false);
+    expect(level.subSteps[0].winCondition('cat tasks.txt', 'Tell Alice to fix laser table', {})).toBe(true);
+    expect(level.subSteps[0].winCondition('cat tasks.txt', 'nothing', {})).toBe(false);
 
-    // Step 1: must use >> on dossier.txt AND original content must still be in the file
-    const appendedFs = { readFile: () => 'Investigation Log\n- Target: Project Helios\n- New finding' };
-    const overwrittenFs = { readFile: () => '- New finding only' };
-    expect(level.subSteps[1].winCondition('echo "x" >> dossier.txt', '', appendedFs)).toBe(true);
-    expect(level.subSteps[1].winCondition('echo "x" > dossier.txt', '', appendedFs)).toBe(false);
-    expect(level.subSteps[1].winCondition('echo "x" >> dossier.txt', '', overwrittenFs)).toBe(false);
+    const appended = { readFile: () => 'Tell Alice to fix laser table\nRecommend Eve' };
+    const overwritten = { readFile: () => 'Recommend Eve' };
+    expect(level.subSteps[1].winCondition('echo "Recommend Eve" >> tasks.txt', '', appended)).toBe(true);
+    expect(level.subSteps[1].winCondition('echo "x" > tasks.txt', '', appended)).toBe(false);
+    expect(level.subSteps[1].winCondition('echo "x" >> tasks.txt', '', overwritten)).toBe(false);
 
-    // Step 2: must cat dossier.txt
-    expect(level.subSteps[2].winCondition('cat dossier.txt', 'Investigation Log\n- stuff', {})).toBe(true);
+    expect(level.subSteps[2].winCondition('cat tasks.txt', 'stuff', {})).toBe(true);
     expect(level.subSteps[2].winCondition('ls', '', {})).toBe(false);
   });
 
-  test('level 7 win conditions check mkdir and cp', () => {
+  test('level 7 win conditions check mkdir, cp, and ssh', () => {
     const level = levels[6];
 
-    // Step 0: evidence directory must exist
     expect(level.subSteps[0].winCondition('mkdir evidence', '', { listDir: (p) => p === 'evidence' ? [] : null })).toBe(true);
     expect(level.subSteps[0].winCondition('mkdir evidence', '', { listDir: () => null })).toBe(false);
 
-    // Step 1: evidence/budget.txt must exist
-    expect(level.subSteps[1].winCondition('cp reports/budget.txt evidence/', '', { readFile: (p) => p === 'evidence/budget.txt' ? 'data' : null })).toBe(true);
-    expect(level.subSteps[1].winCondition('cp reports/budget.txt evidence/', '', { readFile: () => null })).toBe(false);
+    expect(level.subSteps[1].winCondition('cp -r /home/alice/.ssh /home/eve/.ssh', '', { readFile: (p) => p === '/home/eve/.ssh/id_rsa' ? 'key' : null })).toBe(true);
+    expect(level.subSteps[1].winCondition('cp -r /home/alice/.ssh /home/eve/.ssh', '', { readFile: () => null })).toBe(false);
 
-    // Step 2: evidence/staffing.txt must exist
-    expect(level.subSteps[2].winCondition('cp reports/staffing.txt evidence/', '', { readFile: (p) => p === 'evidence/staffing.txt' ? 'data' : null })).toBe(true);
-    expect(level.subSteps[2].winCondition('cp reports/staffing.txt evidence/', '', { readFile: () => null })).toBe(false);
+    expect(level.subSteps[2].winCondition('ssh alice@megafirm-qlab', '', {})).toBe(true);
+    expect(level.subSteps[2].winCondition('ls', '', {})).toBe(false);
   });
 
-  test('level 8 win conditions check mv and rm', () => {
+  test('level 8 win conditions check chmod and script execution', () => {
     const level = levels[7];
 
-    // Step 0: budget moved to classified (there), gone from evidence
-    const movedFs = { readFile: (p) => p === 'classified/budget.txt' ? 'data' : null };
-    const notMovedFs = { readFile: (p) => p === 'evidence/budget.txt' ? 'data' : null };
-    expect(level.subSteps[0].winCondition('mv evidence/budget.txt classified/', '', movedFs)).toBe(true);
-    expect(level.subSteps[0].winCondition('mv evidence/budget.txt classified/', '', notMovedFs)).toBe(false);
+    expect(level.subSteps[0].winCondition('cat README.txt', 'Use: chmod +rw alice.qubit bob.qubit', {})).toBe(true);
+    expect(level.subSteps[0].winCondition('cat README.txt', 'nothing useful', {})).toBe(false);
 
-    // Step 1: temp.log must be gone
-    expect(level.subSteps[1].winCondition('rm temp.log', '', { readFile: () => null })).toBe(true);
-    expect(level.subSteps[1].winCondition('rm temp.log', '', { readFile: () => 'still here' })).toBe(false);
+    const allPerms = {
+      getPermissions: (path) => {
+        if (path === 'alice.qubit') return new Set(['r', 'w']);
+        if (path === 'bob.qubit') return new Set(['r', 'w']);
+        if (path === 'measure.sh') return new Set(['x']);
+        return new Set();
+      },
+    };
+    const missingPerms = {
+      getPermissions: () => new Set(),
+    };
+    expect(level.subSteps[1].winCondition('chmod +x measure.sh', '', allPerms)).toBe(true);
+    expect(level.subSteps[1].winCondition('chmod +x measure.sh', '', missingPerms)).toBe(false);
 
-    // Step 2: old_logs directory must be gone
-    expect(level.subSteps[2].winCondition('rm -r old_logs', '', { listDir: () => null })).toBe(true);
-    expect(level.subSteps[2].winCondition('rm -r old_logs', '', { listDir: () => [] })).toBe(false);
+    expect(level.subSteps[2].winCondition('./measure.sh', 'Entanglement verified. Bell inequality violated.', {})).toBe(true);
+    expect(level.subSteps[2].winCondition('./measure.sh', 'Permission denied', {})).toBe(false);
   });
 
-  test('level 9 win conditions check chmod and script execution', () => {
+  test('level 9 win conditions check mv, rm, and cd', () => {
     const level = levels[8];
 
-    // Step 0: output must mention chmod (from reading readme)
-    expect(level.subSteps[0].winCondition('cat readme.txt', 'Use chmod to fix permissions', {})).toBe(true);
-    expect(level.subSteps[0].winCondition('cat readme.txt', 'nothing useful here', {})).toBe(false);
+    const moved = { readFile: (p) => p === '/home/eve/evidence/temp_results.txt' ? 'data' : null };
+    const notMoved = { readFile: (p) => p === 'temp_results.txt' ? 'data' : null };
+    expect(level.subSteps[0].winCondition('mv temp_results.txt /home/eve/evidence/', '', moved)).toBe(true);
+    expect(level.subSteps[0].winCondition('mv temp_results.txt /home/eve/evidence/', '', notMoved)).toBe(false);
 
-    // Step 1: antidote.sh must have x permission
-    expect(level.subSteps[1].winCondition('chmod +x antidote.sh', '', { getPermissions: () => new Set(['x']) })).toBe(true);
-    expect(level.subSteps[1].winCondition('chmod +x antidote.sh', '', { getPermissions: () => new Set() })).toBe(false);
+    expect(level.subSteps[1].winCondition('rm -r old_logs', '', { listDir: () => null })).toBe(true);
+    expect(level.subSteps[1].winCondition('rm -r old_logs', '', { listDir: () => [] })).toBe(false);
 
-    // Step 2: output must include ACCESS GRANTED
-    expect(level.subSteps[2].winCondition('./antidote.sh', 'T-VIRUS ANTIDOTE DATABASE\nAccessing cure formula...\n\nERROR: NO KNOWN CURE\n\nSystem status: The Cheat is not dead.', {})).toBe(true);
-    expect(level.subSteps[2].winCondition('./antidote.sh', 'Permission denied', {})).toBe(false);
+    expect(level.subSteps[2].winCondition('cd /home/mallory', '', { cwd: '/home/mallory' })).toBe(true);
+    expect(level.subSteps[2].winCondition('cd /home/mallory', '', { cwd: '/home/eve' })).toBe(false);
   });
 
 });
