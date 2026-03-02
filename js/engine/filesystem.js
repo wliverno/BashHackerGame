@@ -9,7 +9,7 @@ function buildNode(name, value) {
   return { type: 'dir', name, children };
 }
 
-export function createFilesystem(tree = {}, homePath = '/home/analyst') {
+export function createFilesystem(tree = {}, homePath = '/home/eve') {
   const root = {
     type: 'dir',
     name: '/',
