@@ -29,6 +29,7 @@ export const commands = {
       stderr: '',
       exitCode: 0,
       switchUser: user,
+      switchCwd: '/home/' + user,
     };
   },
 

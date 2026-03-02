@@ -639,6 +639,7 @@ describe('ssh command', () => {
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain('alice');
     expect(result.switchUser).toBe('alice');
+    expect(result.switchCwd).toBe('/home/alice');
   });
 
   test('ssh fails when no .ssh/id_rsa exists', () => {
