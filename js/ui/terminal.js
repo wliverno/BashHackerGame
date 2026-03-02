@@ -1,10 +1,14 @@
 import { COMMAND_NAMES } from '../engine/commands/index.js';
 
 export function formatPrompt(fs) {
-  const path = fs.cwd === '/home/analyst'
+  const user = fs.currentUser || 'eve';
+  const homePath = fs.homePath || '/home/eve';
+  const path = fs.cwd === homePath
     ? '~'
-    : fs.cwd.replace('/home/analyst', '~');
-  return `[[;#0f0;]analyst@ucorp-srv-04:${path}$] `;
+    : fs.cwd.startsWith(homePath)
+      ? fs.cwd.replace(homePath, '~')
+      : fs.cwd;
+  return `[[;#0f0;]${user}@megafirm-qlab:${path}$] `;
 }
 
 export function printStory(term, story) {
@@ -30,13 +34,13 @@ export function printLevelHeader(term, levelIndex, title) {
 export function printWinScreen(term) {
   term.echo('');
   term.echo('[[;#0f0;]═══════════════════════════════════════]');
-  term.echo('[[;#0f0;]      CHAPTER 3 COMPLETE!              ]');
+  term.echo('[[;#0f0;]      INVESTIGATION COMPLETE!           ]');
   term.echo('[[;#0f0;]═══════════════════════════════════════]');
   term.echo('');
-  term.echo("[[;#0ff;]You can navigate, read, write, and manipulate files.]");
-  term.echo('[[;#0ff;]The server bends to your will.]');
+  term.echo("[[;#0ff;]The evidence is irrefutable. Mallory's sabotage of the quantum computer has been fully documented.]");
+  term.echo('[[;#0ff;]The speed-of-light anomalies, the tampered sensor readings, the suspicious access logs — it all points to one person.]');
   term.echo('');
-  term.echo('[[;#ff0;]More chapters coming soon...]');
+  term.echo('[[;#ff0;]Congratulations, Eve. The quantum lab is safe... for now.]');
   term.echo('');
 }
 
