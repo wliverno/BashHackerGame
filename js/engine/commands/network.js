@@ -31,4 +31,14 @@ export const commands = {
       switchUser: user,
     };
   },
+
+  quit(args, stdin, fs) {
+    return {
+      stdout: 'Connection to megafirm-qlab closed.',
+      stderr: '',
+      exitCode: 0,
+      switchUser: 'eve',
+      switchCwd: '/home/eve',
+    };
+  },
 };

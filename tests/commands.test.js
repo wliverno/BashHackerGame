@@ -672,3 +672,20 @@ describe('ssh command', () => {
     expect(result.exitCode).toBe(1);
   });
 });
+
+describe('quit command', () => {
+  test('quit closes SSH session and returns to eve', () => {
+    const fs = createFilesystem({
+      home: { alice: {}, eve: {} },
+    });
+    fs.cwd = '/home/alice';
+    fs.currentUser = 'alice';
+    fs.homePath = '/home/alice';
+
+    const result = commands.quit([], '', fs);
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain('closed');
+    expect(result.switchUser).toBe('eve');
+    expect(result.switchCwd).toBe('/home/eve');
+  });
+});

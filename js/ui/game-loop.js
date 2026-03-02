@@ -2,14 +2,18 @@ import { levels } from '../gameplay/levels.js';
 import { createFilesystem } from '../engine/filesystem.js';
 import { executePipeline } from '../engine/executor.js';
 
-function checkProtectedFiles(fs, protectedFiles) {
-  for (const filepath of protectedFiles) {
-    const file = fs.readFile(filepath);
-    if (file === null) {
-      return filepath; // Return the missing file path
+function checkProtectedFiles(fs, activeProtectedFiles) {
+  for (const filepath of activeProtectedFiles) {
+    if (fs.readFile(filepath) === null) {
+      return filepath;
     }
   }
-  return null; // All protected files present
+  return null;
+}
+
+function snapshotProtectedFiles(fs, protectedFiles) {
+  // Only track files that actually exist at level start
+  return (protectedFiles || []).filter(f => fs.readFile(f) !== null);
 }
 
 export function createGame() {
@@ -19,12 +23,15 @@ export function createGame() {
   let won = false;
   let currentUser = 'eve';
 
+  let activeProtectedFiles = [];
+
   const loadLevel = (levelIndex) => {
     const level = levels[levelIndex];
     const fs = createFilesystem(level.filesystem);
     fs.cwd = level.startDir;
     fs.restrictedDirs = level.restrictedDirs || {};
     fs.currentUser = currentUser;
+    activeProtectedFiles = snapshotProtectedFiles(fs, level.protectedFiles);
     return fs;
   };
 
@@ -98,11 +105,15 @@ export function createGame() {
         fs.homePath = '/home/' + result.switchUser;
       }
 
+      if (result.switchCwd) {
+        fs.cwd = result.switchCwd;
+      }
+
       const level = levels[currentLevel];
 
       // Check if any protected files were deleted/moved
-      if (level.protectedFiles) {
-        const missingFile = checkProtectedFiles(fs, level.protectedFiles);
+      if (activeProtectedFiles.length > 0) {
+        const missingFile = checkProtectedFiles(fs, activeProtectedFiles);
         if (missingFile) {
           result.gameOver = true;
           result.missingFile = missingFile;

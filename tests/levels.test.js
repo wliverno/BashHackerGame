@@ -85,7 +85,7 @@ describe('levels', () => {
     expect(level.subSteps[1].winCondition('cd /home/eve', '', { cwd: '/home/eve' })).toBe(true);
     expect(level.subSteps[1].winCondition('cd ..', '', { cwd: '/home' })).toBe(false);
 
-    expect(level.subSteps[2].winCondition('cat todo.txt', '1. Review access logs for anomalies', {})).toBe(true);
+    expect(level.subSteps[2].winCondition('cat todo.txt', 'Pray that the laser table is still aligned', {})).toBe(true);
     expect(level.subSteps[2].winCondition('cat todo.txt', 'nothing', {})).toBe(false);
   });
 
@@ -98,41 +98,42 @@ describe('levels', () => {
     expect(level.subSteps[1].winCondition('cat /home/bob/notes/meeting_notes.txt', 'deliberately introducing interference', {})).toBe(true);
     expect(level.subSteps[1].winCondition('cat something', 'nothing', {})).toBe(false);
 
-    expect(level.subSteps[2].winCondition('cat /home/alice/notes/lab_memo.txt /home/alice/notes/safety_notice.txt', 'combined', {})).toBe(true);
-    expect(level.subSteps[2].winCondition('cat /home/alice/notes/lab_memo.txt', 'only one', {})).toBe(false);
+    expect(level.subSteps[2].winCondition('cat /home/alice/notes/*', 'kicking the laser table\nWHISTLING IN THE LAB', {})).toBe(true);
+    expect(level.subSteps[2].winCondition('cat /home/alice/notes/lab_memo.txt /home/alice/notes/safety_notice.txt', 'kicking the laser table\nWHISTLING IN THE LAB', {})).toBe(true);
+    expect(level.subSteps[2].winCondition('cat /home/alice/notes/lab_memo.txt', 'kicking the laser table', {})).toBe(false);
   });
 
-  test('level 5 win conditions check echo > overwrite', () => {
+  test('level 5 win conditions check navigation and echo > overwrite on mallory todo', () => {
     const level = levels[4];
 
-    expect(level.subSteps[0].winCondition('cat tasks.txt', '1. Fix the laser table alignment (AGAIN)', {})).toBe(true);
-    expect(level.subSteps[0].winCondition('cat tasks.txt', 'nothing', {})).toBe(false);
+    expect(level.subSteps[0].winCondition('cd /home/mallory', '', { cwd: '/home/mallory' })).toBe(true);
+    expect(level.subSteps[0].winCondition('cd /home/mallory', '', { cwd: '/home/eve' })).toBe(false);
 
-    const overwritten = { readFile: () => 'Tell Alice to fix laser table' };
-    const original = { readFile: () => '1. Fix the laser table alignment (AGAIN)\n2. Recalibrate' };
-    expect(level.subSteps[1].winCondition('echo "Tell Alice" > tasks.txt', '', overwritten)).toBe(true);
-    expect(level.subSteps[1].winCondition('echo "Tell Alice" > tasks.txt', '', original)).toBe(false);
-    expect(level.subSteps[1].winCondition('echo "Tell Alice" >> tasks.txt', '', overwritten)).toBe(false);
+    expect(level.subSteps[1].winCondition('cat todo.txt', 'Get Eve to fix the laser table alignment', {})).toBe(true);
+    expect(level.subSteps[1].winCondition('cat todo.txt', 'nothing here', {})).toBe(false);
 
-    expect(level.subSteps[2].winCondition('cat tasks.txt', 'Tell Alice to fix laser table', {})).toBe(true);
-    expect(level.subSteps[2].winCondition('ls', '', {})).toBe(false);
-    expect(level.subSteps[2].winCondition('cat tasks.txt', '', {})).toBe(false);
+    const overwritten = { readFile: () => 'Get Alice to align laser table' };
+    const noAlice = { readFile: () => 'Fix everything' };
+    expect(level.subSteps[2].winCondition('echo "Get Alice to align laser table" > todo.txt', '', overwritten)).toBe(true);
+    expect(level.subSteps[2].winCondition('echo "Fix everything" > todo.txt', '', noAlice)).toBe(false);
+    expect(level.subSteps[2].winCondition('echo "Alice laser" >> todo.txt', '', overwritten)).toBe(false);
+
+    expect(level.subSteps[3].winCondition('cat todo.txt', 'Get Alice to align laser table', {})).toBe(true);
+    expect(level.subSteps[3].winCondition('ls', '', {})).toBe(false);
+    expect(level.subSteps[3].winCondition('cat todo.txt', 'no match here', {})).toBe(false);
   });
 
-  test('level 6 win conditions check echo >> append', () => {
+  test('level 6 win conditions check echo >> append on mallory todo', () => {
     const level = levels[5];
 
-    expect(level.subSteps[0].winCondition('cat tasks.txt', 'Tell Alice to fix laser table', {})).toBe(true);
-    expect(level.subSteps[0].winCondition('cat tasks.txt', 'nothing', {})).toBe(false);
+    const appended = { readFile: () => 'Get Alice to align laser table\nRecommend Eve for employee of the month' };
+    const oneLine = { readFile: () => 'Recommend Eve' };
+    expect(level.subSteps[0].winCondition('echo "Recommend Eve" >> todo.txt', '', appended)).toBe(true);
+    expect(level.subSteps[0].winCondition('echo "x" > todo.txt', '', appended)).toBe(false);
+    expect(level.subSteps[0].winCondition('echo "x" >> todo.txt', '', oneLine)).toBe(false);
 
-    const appended = { readFile: () => 'Tell Alice to fix laser table\nRecommend Eve' };
-    const overwritten = { readFile: () => 'Recommend Eve' };
-    expect(level.subSteps[1].winCondition('echo "Recommend Eve" >> tasks.txt', '', appended)).toBe(true);
-    expect(level.subSteps[1].winCondition('echo "x" > tasks.txt', '', appended)).toBe(false);
-    expect(level.subSteps[1].winCondition('echo "x" >> tasks.txt', '', overwritten)).toBe(false);
-
-    expect(level.subSteps[2].winCondition('cat tasks.txt', 'stuff', {})).toBe(true);
-    expect(level.subSteps[2].winCondition('ls', '', {})).toBe(false);
+    expect(level.subSteps[1].winCondition('cat todo.txt', 'line1\nline2', {})).toBe(true);
+    expect(level.subSteps[1].winCondition('ls', '', {})).toBe(false);
   });
 
   test('level 7 win conditions check mkdir, cp, and ssh', () => {
@@ -141,18 +142,24 @@ describe('levels', () => {
     expect(level.subSteps[0].winCondition('mkdir evidence', '', { listDir: (p) => p === 'evidence' ? [] : null })).toBe(true);
     expect(level.subSteps[0].winCondition('mkdir evidence', '', { listDir: () => null })).toBe(false);
 
-    expect(level.subSteps[1].winCondition('cp -r /home/alice/.ssh /home/eve/.ssh', '', { readFile: (p) => p === '/home/eve/.ssh/id_rsa' ? 'key' : null })).toBe(true);
-    expect(level.subSteps[1].winCondition('cp -r /home/alice/.ssh /home/eve/.ssh', '', { readFile: () => null })).toBe(false);
+    expect(level.subSteps[1].winCondition('mkdir .ssh', '', { listDir: (p) => p === '/home/eve/.ssh' ? [] : null })).toBe(true);
+    expect(level.subSteps[1].winCondition('mkdir .ssh', '', { listDir: () => null })).toBe(false);
 
-    expect(level.subSteps[2].winCondition('ssh alice@megafirm-qlab', '', {})).toBe(true);
-    expect(level.subSteps[2].winCondition('ls', '', {})).toBe(false);
+    expect(level.subSteps[2].winCondition('cp /home/alice/.ssh/* .ssh/', '', { readFile: (p) => p === '/home/eve/.ssh/id_rsa' ? 'key' : null })).toBe(true);
+    expect(level.subSteps[2].winCondition('cp /home/alice/.ssh/* .ssh/', '', { readFile: () => null })).toBe(false);
+
+    expect(level.subSteps[3].winCondition('ssh alice@megafirm-qlab', '', {})).toBe(true);
+    expect(level.subSteps[3].winCondition('ls', '', {})).toBe(false);
   });
 
   test('level 8 win conditions check chmod and script execution', () => {
     const level = levels[7];
 
-    expect(level.subSteps[0].winCondition('cat README.txt', 'Use: chmod +rw alice.qubit bob.qubit', {})).toBe(true);
-    expect(level.subSteps[0].winCondition('cat README.txt', 'nothing useful', {})).toBe(false);
+    expect(level.subSteps[0].winCondition('cd research', '', { cwd: '/home/alice/research' })).toBe(true);
+    expect(level.subSteps[0].winCondition('cd research', '', { cwd: '/home/alice' })).toBe(false);
+
+    expect(level.subSteps[1].winCondition('cat README.txt', 'qubit data files need to be readable and writable', {})).toBe(true);
+    expect(level.subSteps[1].winCondition('cat README.txt', 'nothing useful', {})).toBe(false);
 
     const allPerms = {
       getPermissions: (path) => {
@@ -165,26 +172,56 @@ describe('levels', () => {
     const missingPerms = {
       getPermissions: () => new Set(),
     };
-    expect(level.subSteps[1].winCondition('chmod +x measure.sh', '', allPerms)).toBe(true);
-    expect(level.subSteps[1].winCondition('chmod +x measure.sh', '', missingPerms)).toBe(false);
+    expect(level.subSteps[2].winCondition('chmod +x measure.sh', '', allPerms)).toBe(true);
+    expect(level.subSteps[2].winCondition('chmod +x measure.sh', '', missingPerms)).toBe(false);
 
-    expect(level.subSteps[2].winCondition('./measure.sh', 'Entanglement verified. Bell inequality violated.', {})).toBe(true);
-    expect(level.subSteps[2].winCondition('./measure.sh', 'Permission denied', {})).toBe(false);
+    expect(level.subSteps[3].winCondition('./measure.sh', 'Entanglement verified. Bell inequality violated.', {})).toBe(true);
+    expect(level.subSteps[3].winCondition('./measure.sh', 'Permission denied', {})).toBe(false);
   });
 
-  test('level 9 win conditions check mv, rm, and cd', () => {
+  test('level 9 win conditions check mv, quit, and rm bash_history', () => {
     const level = levels[8];
+    expect(level.subSteps.length).toBe(3);
 
-    const moved = { readFile: (p) => p === '/home/eve/evidence/temp_results.txt' ? 'data' : null };
-    const notMoved = { readFile: (p) => p === 'temp_results.txt' ? 'data' : null };
-    expect(level.subSteps[0].winCondition('mv temp_results.txt /home/eve/evidence/', '', moved)).toBe(true);
-    expect(level.subSteps[0].winCondition('mv temp_results.txt /home/eve/evidence/', '', notMoved)).toBe(false);
+    // substep 0: mv temp_results.txt to /home/eve/
+    // source at /home/alice/temp_results.txt is gone (null), destination at /home/eve/ exists
+    const moved = { readFile: (p) => p === '/home/eve/temp_results.txt' ? 'data' : null };
+    const notMoved = { readFile: () => null };
+    expect(level.subSteps[0].winCondition('mv temp_results.txt /home/eve/', '', moved)).toBe(true);
+    expect(level.subSteps[0].winCondition('mv temp_results.txt /home/eve/', '', notMoved)).toBe(false);
+    const copiedNotMoved = { readFile: () => 'data' }; // both paths return data
+    expect(level.subSteps[0].winCondition('mv temp_results.txt /home/eve/', '', copiedNotMoved)).toBe(false);
 
-    expect(level.subSteps[1].winCondition('rm -r old_logs', '', { listDir: () => null })).toBe(true);
-    expect(level.subSteps[1].winCondition('rm -r old_logs', '', { listDir: () => [] })).toBe(false);
+    // substep 1: quit (currentUser back to eve)
+    expect(level.subSteps[1].winCondition('quit', '', { currentUser: 'eve' })).toBe(true);
+    expect(level.subSteps[1].winCondition('quit', '', { currentUser: 'alice' })).toBe(false);
 
-    expect(level.subSteps[2].winCondition('cd /home/mallory', '', { cwd: '/home/mallory' })).toBe(true);
-    expect(level.subSteps[2].winCondition('cd /home/mallory', '', { cwd: '/home/eve' })).toBe(false);
+    // substep 2: rm /home/alice/.bash_history
+    const deleted = { readFile: () => null };
+    const notDeleted = { readFile: (p) => p === '/home/alice/.bash_history' ? 'history' : null };
+    expect(level.subSteps[2].winCondition('rm /home/alice/.bash_history', '', deleted)).toBe(true);
+    expect(level.subSteps[2].winCondition('rm /home/alice/.bash_history', '', notDeleted)).toBe(false);
+  });
+
+  test('level 12 win conditions check grep output content', () => {
+    const level = levels[11];
+    expect(level.subSteps.length).toBe(2);
+
+    // substep 0: access_proof.txt must exist and all lines contain 'mallory'
+    const goodAccess = { readFile: (p) => p === '/home/eve/evidence/access_proof.txt' ? 'mallory accessed at 10:00\nmallory accessed at 11:00' : null };
+    const emptyAccess = { readFile: () => null };
+    const badAccess = { readFile: (p) => p === '/home/eve/evidence/access_proof.txt' ? 'mallory accessed\nalice accessed' : null };
+    expect(level.subSteps[0].winCondition('grep mallory /var/log/access.log > evidence/access_proof.txt', '', goodAccess)).toBe(true);
+    expect(level.subSteps[0].winCondition('grep mallory /var/log/access.log > evidence/access_proof.txt', '', emptyAccess)).toBe(false);
+    expect(level.subSteps[0].winCondition('grep mallory /var/log/access.log > evidence/access_proof.txt', '', badAccess)).toBe(false);
+
+    // substep 1: speed_anomalies.txt must exist and all lines contain '2.99E'
+    const goodSpeed = { readFile: (p) => p === '/home/eve/evidence/speed_anomalies.txt' ? '2024,2.99E8\n2024,2.99E8' : null };
+    const emptySpeed = { readFile: () => null };
+    const badSpeed = { readFile: (p) => p === '/home/eve/evidence/speed_anomalies.txt' ? '2024,2.99E8\n2024,1.5E3' : null };
+    expect(level.subSteps[1].winCondition('grep "2.99E" /var/data/sensor_readings.csv > evidence/speed_anomalies.txt', '', goodSpeed)).toBe(true);
+    expect(level.subSteps[1].winCondition('grep "2.99E" /var/data/sensor_readings.csv > evidence/speed_anomalies.txt', '', emptySpeed)).toBe(false);
+    expect(level.subSteps[1].winCondition('grep "2.99E" /var/data/sensor_readings.csv > evidence/speed_anomalies.txt', '', badSpeed)).toBe(false);
   });
 
 });

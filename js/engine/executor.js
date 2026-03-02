@@ -80,6 +80,19 @@ export function executePipeline(input, fs) {
     if (!fs.getPermissions(scriptPath).has('x')) {
       return { output: `${scriptPath}: Permission denied`, exitCode: 126 };
     }
+    // Simulate script execution: if script has echo lines, extract their output
+    const echoLines = content.split('\n')
+      .filter(line => line.trim().startsWith('echo '));
+    if (echoLines.length > 0) {
+      const output = echoLines
+        .map(line => {
+          const arg = line.trim().slice(5);
+          const match = arg.match(/^"(.*)"$/);
+          return match ? match[1] : arg;
+        })
+        .join('\n');
+      return { output, exitCode: 0 };
+    }
     return { output: content, exitCode: 0 };
   }
 
@@ -128,5 +141,6 @@ export function executePipeline(input, fs) {
     exitCode: lastResult.exitCode,
     clear: lastResult.clear,
     switchUser: lastResult.switchUser,
+    switchCwd: lastResult.switchCwd,
   };
 }

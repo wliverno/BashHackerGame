@@ -206,26 +206,28 @@ describe('game.runCommand', () => {
     game.runCommand('cat /home/bob/notes/meeting_notes.txt');
     game.runCommand('cat /home/alice/notes/lab_memo.txt /home/alice/notes/safety_notice.txt');
 
-    // Level 5 — Rewriting History
+    // Level 5 — Rewriting History (Mallory's todo)
     expect(game.currentLevel).toBe(4);
-    game.runCommand('cat tasks.txt');
-    game.runCommand('echo "Tell Alice to fix laser table" > tasks.txt');
-    game.runCommand('cat tasks.txt');
+    game.runCommand('cd /home/mallory');
+    game.runCommand('cat todo.txt');
+    game.runCommand('echo "Get Alice to align laser table" > todo.txt');
+    game.runCommand('cat todo.txt');
 
-    // Level 6 — Employee of the Month
+    // Level 6 — Employee of the Month (Mallory's todo)
     expect(game.currentLevel).toBe(5);
-    game.runCommand('cat tasks.txt');
-    game.runCommand('echo "Recommend Eve for employee of the month" >> tasks.txt');
-    game.runCommand('cat tasks.txt');
+    game.runCommand('echo "Recommend Eve for employee of the month" >> todo.txt');
+    game.runCommand('cat todo.txt');
 
     // Level 7 — Copying the Keys
     expect(game.currentLevel).toBe(6);
     game.runCommand('mkdir evidence');
-    game.runCommand('cp -r /home/alice/.ssh /home/eve/.ssh');
+    game.runCommand('mkdir .ssh');
+    game.runCommand('cp /home/alice/.ssh/* .ssh/');
     game.runCommand('ssh alice@megafirm-qlab');
 
     // Level 8 — Quantum Measurement
     expect(game.currentLevel).toBe(7);
+    game.runCommand('cd research');
     game.runCommand('cat README.txt');
     game.runCommand('chmod +rw alice.qubit bob.qubit');
     game.runCommand('chmod +x measure.sh');
@@ -233,9 +235,10 @@ describe('game.runCommand', () => {
 
     // Level 9 — Covering Tracks
     expect(game.currentLevel).toBe(8);
-    game.runCommand('mv temp_results.txt /home/eve/evidence/');
-    game.runCommand('rm -r old_logs');
-    game.runCommand('cd /home/mallory');
+    game.runCommand('mv temp_results.txt /home/eve/');
+    game.runCommand('quit');
+    game.runCommand('rm /home/alice/.bash_history');
+    expect(game.currentLevel).toBe(9);
 
     // Level 10 — Counting the Damage
     expect(game.currentLevel).toBe(9);
@@ -251,9 +254,8 @@ describe('game.runCommand', () => {
 
     // Level 12 — The Evidence Dossier
     expect(game.currentLevel).toBe(11);
-    game.runCommand('cat /var/log/access.log | grep mallory > evidence/access_proof.txt');
-    game.runCommand('cat /var/data/sensor_readings.csv | grep "2.99E" > evidence/speed_anomalies.txt');
-    game.runCommand('cat evidence/access_proof.txt evidence/speed_anomalies.txt | sort >> evidence/final_dossier.txt');
+    game.runCommand('grep mallory /var/log/access.log > evidence/access_proof.txt');
+    game.runCommand('grep "2.99E" /var/data/sensor_readings.csv > evidence/speed_anomalies.txt');
 
     expect(game.won).toBe(true);
   });
