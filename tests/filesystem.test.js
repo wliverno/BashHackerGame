@@ -16,7 +16,7 @@ describe('createFilesystem', () => {
   test('creates filesystem from nested object', () => {
     const tree = {
       home: {
-        analyst: {
+        eve: {
           'readme.txt': 'Welcome to the server',
           projects: {},
         },
@@ -26,8 +26,8 @@ describe('createFilesystem', () => {
 
     expect(fs.root.children.home).toBeDefined();
     expect(fs.root.children.home.type).toBe('dir');
-    expect(fs.root.children.home.children.analyst.children['readme.txt'].type).toBe('file');
-    expect(fs.root.children.home.children.analyst.children['readme.txt'].content).toBe('Welcome to the server');
+    expect(fs.root.children.home.children.eve.children['readme.txt'].type).toBe('file');
+    expect(fs.root.children.home.children.eve.children['readme.txt'].content).toBe('Welcome to the server');
   });
 
   test('empty object creates empty directory', () => {
@@ -45,7 +45,7 @@ describe('resolvePath', () => {
   beforeEach(() => {
     fs = createFilesystem({
       home: {
-        analyst: {
+        eve: {
           'readme.txt': 'hello',
           projects: {
             'notes.txt': 'secret',
@@ -59,13 +59,13 @@ describe('resolvePath', () => {
   });
 
   test('resolves absolute path to directory', () => {
-    const node = fs.resolvePath('/home/analyst');
+    const node = fs.resolvePath('/home/eve');
     expect(node.type).toBe('dir');
-    expect(node.name).toBe('analyst');
+    expect(node.name).toBe('eve');
   });
 
   test('resolves absolute path to file', () => {
-    const node = fs.resolvePath('/home/analyst/readme.txt');
+    const node = fs.resolvePath('/home/eve/readme.txt');
     expect(node.type).toBe('file');
     expect(node.content).toBe('hello');
   });
@@ -76,27 +76,27 @@ describe('resolvePath', () => {
   });
 
   test('resolves relative path from cwd', () => {
-    fs.cwd = '/home/analyst';
+    fs.cwd = '/home/eve';
     const node = fs.resolvePath('projects');
     expect(node.type).toBe('dir');
     expect(node.name).toBe('projects');
   });
 
   test('resolves .. to parent directory', () => {
-    fs.cwd = '/home/analyst/projects';
+    fs.cwd = '/home/eve/projects';
     const node = fs.resolvePath('..');
-    expect(node.name).toBe('analyst');
+    expect(node.name).toBe('eve');
   });
 
   test('resolves . to current directory', () => {
-    fs.cwd = '/home/analyst';
+    fs.cwd = '/home/eve';
     const node = fs.resolvePath('.');
-    expect(node.name).toBe('analyst');
+    expect(node.name).toBe('eve');
   });
 
   test('resolves complex relative path', () => {
-    fs.cwd = '/home/analyst';
-    const node = fs.resolvePath('../analyst/projects/../readme.txt');
+    fs.cwd = '/home/eve';
+    const node = fs.resolvePath('../eve/projects/../readme.txt');
     expect(node.type).toBe('file');
     expect(node.content).toBe('hello');
   });
@@ -108,7 +108,7 @@ describe('resolvePath', () => {
 
   test('resolves ~ to home directory', () => {
     const node = fs.resolvePath('~');
-    expect(node.name).toBe('analyst');
+    expect(node.name).toBe('eve');
   });
 });
 
@@ -117,26 +117,26 @@ describe('getAbsolutePath', () => {
 
   beforeEach(() => {
     fs = createFilesystem({
-      home: { analyst: { projects: {} } },
+      home: { eve: { projects: {} } },
     });
   });
 
   test('returns absolute path unchanged', () => {
-    expect(fs.getAbsolutePath('/home/analyst')).toBe('/home/analyst');
+    expect(fs.getAbsolutePath('/home/eve')).toBe('/home/eve');
   });
 
   test('converts relative path to absolute', () => {
     fs.cwd = '/home';
-    expect(fs.getAbsolutePath('analyst')).toBe('/home/analyst');
+    expect(fs.getAbsolutePath('eve')).toBe('/home/eve');
   });
 
   test('resolves .. in path', () => {
-    fs.cwd = '/home/analyst/projects';
+    fs.cwd = '/home/eve/projects';
     expect(fs.getAbsolutePath('../..')).toBe('/home');
   });
 
   test('resolves ~ to home', () => {
-    expect(fs.getAbsolutePath('~')).toBe('/home/analyst');
+    expect(fs.getAbsolutePath('~')).toBe('/home/eve');
   });
 
   test('returns / for root', () => {
@@ -150,14 +150,14 @@ describe('listDir', () => {
   beforeEach(() => {
     fs = createFilesystem({
       home: {
-        analyst: {
+        eve: {
           '.hidden': 'secret',
           'readme.txt': 'hello',
           projects: {},
         },
       },
     });
-    fs.cwd = '/home/analyst';
+    fs.cwd = '/home/eve';
   });
 
   test('lists visible entries in directory', () => {
@@ -199,16 +199,16 @@ describe('readFile', () => {
   beforeEach(() => {
     fs = createFilesystem({
       home: {
-        analyst: {
-          'readme.txt': 'Hello, analyst!',
+        eve: {
+          'readme.txt': 'Hello, eve!',
         },
       },
     });
   });
 
   test('reads file content', () => {
-    const content = fs.readFile('/home/analyst/readme.txt');
-    expect(content).toBe('Hello, analyst!');
+    const content = fs.readFile('/home/eve/readme.txt');
+    expect(content).toBe('Hello, eve!');
   });
 
   test('returns null for non-existent file', () => {
@@ -217,7 +217,7 @@ describe('readFile', () => {
   });
 
   test('returns null for directory', () => {
-    const content = fs.readFile('/home/analyst');
+    const content = fs.readFile('/home/eve');
     expect(content).toBeNull();
   });
 });
@@ -228,12 +228,12 @@ describe('writeFile', () => {
   beforeEach(() => {
     fs = createFilesystem({
       home: {
-        analyst: {
+        eve: {
           'existing.txt': 'old content',
         },
       },
     });
-    fs.cwd = '/home/analyst';
+    fs.cwd = '/home/eve';
   });
 
   test('creates new file', () => {
@@ -253,8 +253,8 @@ describe('writeFile', () => {
   });
 
   test('creates file in nested path', () => {
-    fs.writeFile('/home/analyst/new.txt', 'content');
-    expect(fs.readFile('/home/analyst/new.txt')).toBe('content');
+    fs.writeFile('/home/eve/new.txt', 'content');
+    expect(fs.readFile('/home/eve/new.txt')).toBe('content');
   });
 
   test('returns false for non-existent parent directory', () => {
@@ -263,7 +263,7 @@ describe('writeFile', () => {
   });
 
   test('returns false when trying to write to directory', () => {
-    const result = fs.writeFile('/home/analyst', 'content');
+    const result = fs.writeFile('/home/eve', 'content');
     expect(result).toBe(false);
   });
 });
@@ -274,7 +274,7 @@ describe('changeDir', () => {
   beforeEach(() => {
     fs = createFilesystem({
       home: {
-        analyst: {
+        eve: {
           projects: {},
           'file.txt': 'content',
         },
@@ -283,26 +283,26 @@ describe('changeDir', () => {
   });
 
   test('changes to absolute path', () => {
-    const result = fs.changeDir('/home/analyst');
+    const result = fs.changeDir('/home/eve');
     expect(result).toBe(true);
-    expect(fs.cwd).toBe('/home/analyst');
+    expect(fs.cwd).toBe('/home/eve');
   });
 
   test('changes to relative path', () => {
     fs.cwd = '/home';
-    fs.changeDir('analyst');
-    expect(fs.cwd).toBe('/home/analyst');
+    fs.changeDir('eve');
+    expect(fs.cwd).toBe('/home/eve');
   });
 
   test('changes to parent with ..', () => {
-    fs.cwd = '/home/analyst';
+    fs.cwd = '/home/eve';
     fs.changeDir('..');
     expect(fs.cwd).toBe('/home');
   });
 
   test('changes to home with ~', () => {
     fs.changeDir('~');
-    expect(fs.cwd).toBe('/home/analyst');
+    expect(fs.cwd).toBe('/home/eve');
   });
 
   test('returns false for non-existent directory', () => {
@@ -311,8 +311,8 @@ describe('changeDir', () => {
   });
 
   test('returns false for file path', () => {
-    fs = createFilesystem({ home: { analyst: { 'file.txt': 'content' } } });
-    const result = fs.changeDir('/home/analyst/file.txt');
+    fs = createFilesystem({ home: { eve: { 'file.txt': 'content' } } });
+    const result = fs.changeDir('/home/eve/file.txt');
     expect(result).toBe(false);
   });
 });
@@ -322,9 +322,9 @@ describe('createDir', () => {
 
   beforeEach(() => {
     fs = createFilesystem({
-      home: { analyst: { projects: {} } },
+      home: { eve: { projects: {} } },
     });
-    fs.cwd = '/home/analyst';
+    fs.cwd = '/home/eve';
   });
 
   test('creates a new directory', () => {
@@ -341,8 +341,8 @@ describe('createDir', () => {
   });
 
   test('creates directory with absolute path', () => {
-    expect(fs.createDir('/home/analyst/newdir')).toBe(true);
-    expect(fs.listDir('/home/analyst/newdir')).toEqual([]);
+    expect(fs.createDir('/home/eve/newdir')).toBe(true);
+    expect(fs.listDir('/home/eve/newdir')).toEqual([]);
   });
 });
 
@@ -352,14 +352,14 @@ describe('deleteEntry', () => {
   beforeEach(() => {
     fs = createFilesystem({
       home: {
-        analyst: {
+        eve: {
           'file.txt': 'content',
           empty: {},
           logs: { 'a.log': 'log1' },
         },
       },
     });
-    fs.cwd = '/home/analyst';
+    fs.cwd = '/home/eve';
   });
 
   test('deletes a file', () => {
@@ -382,7 +382,7 @@ describe('deleteEntry', () => {
   });
 
   test('returns false when trying to delete cwd', () => {
-    expect(fs.deleteEntry('/home/analyst')).toBe(false);
+    expect(fs.deleteEntry('/home/eve')).toBe(false);
   });
 
   test('returns false when trying to delete root', () => {
@@ -395,9 +395,9 @@ describe('permissions', () => {
 
   beforeEach(() => {
     fs = createFilesystem({
-      home: { analyst: { 'script.sh': '#!/bin/bash' } },
+      home: { eve: { 'script.sh': '#!/bin/bash' } },
     });
-    fs.cwd = '/home/analyst';
+    fs.cwd = '/home/eve';
   });
 
   test('default permissions are empty', () => {

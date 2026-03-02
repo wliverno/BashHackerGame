@@ -3,10 +3,10 @@ import { createFilesystem } from '../js/engine/filesystem.js';
 
 describe('pwd', () => {
   test('returns current working directory', () => {
-    const fs = createFilesystem({ home: { analyst: {} } });
-    fs.cwd = '/home/analyst';
+    const fs = createFilesystem({ home: { eve: {} } });
+    fs.cwd = '/home/eve';
     const result = commands.pwd([], '', fs);
-    expect(result.stdout).toBe('/home/analyst');
+    expect(result.stdout).toBe('/home/eve');
     expect(result.stderr).toBe('');
     expect(result.exitCode).toBe(0);
   });
@@ -24,14 +24,14 @@ describe('ls', () => {
   beforeEach(() => {
     fs = createFilesystem({
       home: {
-        analyst: {
+        eve: {
           '.hidden': 'secret',
           'readme.txt': 'hello',
           projects: {},
         },
       },
     });
-    fs.cwd = '/home/analyst';
+    fs.cwd = '/home/eve';
   });
 
   test('lists current directory', () => {
@@ -44,7 +44,7 @@ describe('ls', () => {
 
   test('lists specified directory', () => {
     fs.cwd = '/';
-    const result = commands.ls(['/home/analyst'], '', fs);
+    const result = commands.ls(['/home/eve'], '', fs);
     expect(result.stdout).toContain('readme.txt');
   });
 
@@ -71,7 +71,7 @@ describe('cd', () => {
   beforeEach(() => {
     fs = createFilesystem({
       home: {
-        analyst: {
+        eve: {
           projects: {},
           'file.txt': 'content',
         },
@@ -81,32 +81,32 @@ describe('cd', () => {
   });
 
   test('changes to specified directory', () => {
-    const result = commands.cd(['/home/analyst'], '', fs);
-    expect(fs.cwd).toBe('/home/analyst');
+    const result = commands.cd(['/home/eve'], '', fs);
+    expect(fs.cwd).toBe('/home/eve');
     expect(result.stdout).toBe('');
     expect(result.exitCode).toBe(0);
   });
 
   test('changes to relative directory', () => {
     fs.cwd = '/home';
-    commands.cd(['analyst'], '', fs);
-    expect(fs.cwd).toBe('/home/analyst');
+    commands.cd(['eve'], '', fs);
+    expect(fs.cwd).toBe('/home/eve');
   });
 
   test('changes to parent with ..', () => {
-    fs.cwd = '/home/analyst';
+    fs.cwd = '/home/eve';
     commands.cd(['..'], '', fs);
     expect(fs.cwd).toBe('/home');
   });
 
   test('changes to home with no args', () => {
     commands.cd([], '', fs);
-    expect(fs.cwd).toBe('/home/analyst');
+    expect(fs.cwd).toBe('/home/eve');
   });
 
   test('changes to home with ~', () => {
     commands.cd(['~'], '', fs);
-    expect(fs.cwd).toBe('/home/analyst');
+    expect(fs.cwd).toBe('/home/eve');
   });
 
   test('returns error for non-existent directory', () => {
@@ -116,7 +116,7 @@ describe('cd', () => {
   });
 
   test('returns error for file path', () => {
-    const result = commands.cd(['/home/analyst/file.txt'], '', fs);
+    const result = commands.cd(['/home/eve/file.txt'], '', fs);
     expect(result.stderr).toContain('Not a directory');
     expect(result.exitCode).toBe(1);
   });
@@ -128,13 +128,13 @@ describe('cat', () => {
   beforeEach(() => {
     fs = createFilesystem({
       home: {
-        analyst: {
+        eve: {
           'file1.txt': 'Hello',
           'file2.txt': 'World',
         },
       },
     });
-    fs.cwd = '/home/analyst';
+    fs.cwd = '/home/eve';
   });
 
   test('reads single file', () => {
@@ -208,8 +208,8 @@ describe('mkdir', () => {
   let fs;
 
   beforeEach(() => {
-    fs = createFilesystem({ home: { analyst: {} } });
-    fs.cwd = '/home/analyst';
+    fs = createFilesystem({ home: { eve: {} } });
+    fs.cwd = '/home/eve';
   });
 
   test('creates a directory', () => {
@@ -237,14 +237,14 @@ describe('cp', () => {
   beforeEach(() => {
     fs = createFilesystem({
       home: {
-        analyst: {
+        eve: {
           'source.txt': 'hello',
           dest: {},
           srcdir: { 'inner.txt': 'nested' },
         },
       },
     });
-    fs.cwd = '/home/analyst';
+    fs.cwd = '/home/eve';
   });
 
   test('copies file to new name', () => {
@@ -284,13 +284,13 @@ describe('mv', () => {
   beforeEach(() => {
     fs = createFilesystem({
       home: {
-        analyst: {
+        eve: {
           'file.txt': 'content',
           target: {},
         },
       },
     });
-    fs.cwd = '/home/analyst';
+    fs.cwd = '/home/eve';
   });
 
   test('renames a file', () => {
@@ -320,13 +320,13 @@ describe('rm', () => {
   beforeEach(() => {
     fs = createFilesystem({
       home: {
-        analyst: {
+        eve: {
           'file.txt': 'content',
           mydir: { 'inner.txt': 'nested' },
         },
       },
     });
-    fs.cwd = '/home/analyst';
+    fs.cwd = '/home/eve';
   });
 
   test('removes a file', () => {
@@ -358,9 +358,9 @@ describe('chmod', () => {
 
   beforeEach(() => {
     fs = createFilesystem({
-      home: { analyst: { 'script.sh': 'echo hi' } },
+      home: { eve: { 'script.sh': 'echo hi' } },
     });
-    fs.cwd = '/home/analyst';
+    fs.cwd = '/home/eve';
   });
 
   test('sets executable permission', () => {
@@ -388,12 +388,12 @@ describe('wc', () => {
   beforeEach(() => {
     fs = createFilesystem({
       home: {
-        analyst: {
+        eve: {
           'test.txt': 'hello world\nfoo bar\nbaz',
         },
       },
     });
-    fs.cwd = '/home/analyst';
+    fs.cwd = '/home/eve';
   });
 
   test('counts lines, words, and chars from stdin', () => {
@@ -423,12 +423,12 @@ describe('sort', () => {
   beforeEach(() => {
     fs = createFilesystem({
       home: {
-        analyst: {
+        eve: {
           'list.txt': 'banana\napple\ncherry',
         },
       },
     });
-    fs.cwd = '/home/analyst';
+    fs.cwd = '/home/eve';
   });
 
   test('sorts lines from stdin', () => {
@@ -455,12 +455,12 @@ describe('head', () => {
   beforeEach(() => {
     fs = createFilesystem({
       home: {
-        analyst: {
+        eve: {
           'lines.txt': '1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12',
         },
       },
     });
-    fs.cwd = '/home/analyst';
+    fs.cwd = '/home/eve';
   });
 
   test('shows first 10 lines by default from stdin', () => {
@@ -487,12 +487,12 @@ describe('tail', () => {
   beforeEach(() => {
     fs = createFilesystem({
       home: {
-        analyst: {
+        eve: {
           'lines.txt': '1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12',
         },
       },
     });
-    fs.cwd = '/home/analyst';
+    fs.cwd = '/home/eve';
   });
 
   test('shows last 10 lines by default from stdin', () => {
@@ -519,12 +519,12 @@ describe('grep', () => {
   beforeEach(() => {
     fs = createFilesystem({
       home: {
-        analyst: {
+        eve: {
           'test.txt': 'hello world\nfoo bar\nHELLO WORLD',
         },
       },
     });
-    fs.cwd = '/home/analyst';
+    fs.cwd = '/home/eve';
   });
 
   test('filters lines from stdin', () => {
