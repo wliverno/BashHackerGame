@@ -1,29 +1,28 @@
 export const chapters = [
   {
     id: 1,
-    title: 'Getting In',
-    description: 'You\'re in. The server is quiet. Figure out where you are and what\'s here.',
-    commands: ['ls', 'cd', 'pwd'],
+    title: 'Logging In',
+    description: 'You\'ve SSH\'d into the Megafirm quantum lab server. Figure out where you are and who else is here.',
+    commands: ['ls', 'cd', 'pwd', 'cat'],
   },
   {
     id: 2,
-    title: 'Reading the Server',
-    description: 'Data is everywhere on this thing. You need to read it — and sometimes write to it.',
+    title: 'Reading the Lab',
+    description: 'The lab is full of memos, notes, and warnings. Read everything you can get your hands on.',
     commands: ['cat', 'echo', '>', '>>'],
   },
   {
     id: 3,
-    title: 'Moving Pieces',
-    description: 'You need to organize what you\'ve found — and cover your tracks.',
-    commands: ['mkdir', 'cp', 'mv', 'rm', 'chmod'],
+    title: 'Inside the Lab',
+    description: 'Time to get your hands dirty. Copy keys, run experiments, and cover your tracks.',
+    commands: ['mkdir', 'cp', 'mv', 'rm', 'chmod', 'ssh'],
   },
   {
     id: 4,
     title: 'The Data Pipeline',
-    description: 'The server is full of noise. You need to filter signal from static.',
-    commands: ['|', 'wc', 'sort'],
+    description: 'The sensor data tells a story. Use pipelines to extract the truth from the noise.',
+    commands: ['|', 'wc', 'sort', 'grep', 'head', 'tail'],
   },
-  // Chapters 5-7 to be implemented
 ];
 
 export function getChapter(chapterId) {
