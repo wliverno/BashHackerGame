@@ -10,17 +10,17 @@ describe('executePipeline', () => {
   beforeEach(() => {
     fs = createFilesystem({
       home: {
-        analyst: {
+        eve: {
           'file.txt': 'hello world',
         },
       },
     });
-    fs.cwd = '/home/analyst';
+    fs.cwd = '/home/eve';
   });
 
   test('executes single command', () => {
     const result = executePipeline('pwd', fs);
-    expect(result.output).toBe('/home/analyst');
+    expect(result.output).toBe('/home/eve');
   });
 
   test('executes pipe chain', () => {
@@ -53,9 +53,9 @@ describe('executePipeline', () => {
 
   test('executes ./script when file is executable', () => {
     const fs = createFilesystem({
-      home: { analyst: { 'run.sh': 'hello from script' } },
+      home: { eve: { 'run.sh': 'hello from script' } },
     });
-    fs.cwd = '/home/analyst';
+    fs.cwd = '/home/eve';
     fs.setPermission('run.sh', '+x');
     const result = executePipeline('./run.sh', fs);
     expect(result.output).toBe('hello from script');
@@ -64,17 +64,17 @@ describe('executePipeline', () => {
 
   test('returns Permission denied for non-executable ./script', () => {
     const fs = createFilesystem({
-      home: { analyst: { 'run.sh': 'hello' } },
+      home: { eve: { 'run.sh': 'hello' } },
     });
-    fs.cwd = '/home/analyst';
+    fs.cwd = '/home/eve';
     const result = executePipeline('./run.sh', fs);
     expect(result.output).toContain('Permission denied');
     expect(result.exitCode).toBe(126);
   });
 
   test('returns error for non-existent ./script', () => {
-    const fs = createFilesystem({ home: { analyst: {} } });
-    fs.cwd = '/home/analyst';
+    const fs = createFilesystem({ home: { eve: {} } });
+    fs.cwd = '/home/eve';
     const result = executePipeline('./nope.sh', fs);
     expect(result.output).toContain('No such file or directory');
     expect(result.exitCode).toBe(127);
@@ -82,9 +82,9 @@ describe('executePipeline', () => {
 
   test('expands * wildcard', () => {
     const fs = createFilesystem({
-      home: { analyst: { 'test1.txt': 'content1', 'test2.txt': 'content2', 'other.log': 'log' } },
+      home: { eve: { 'test1.txt': 'content1', 'test2.txt': 'content2', 'other.log': 'log' } },
     });
-    fs.cwd = '/home/analyst';
+    fs.cwd = '/home/eve';
     const result = executePipeline('ls *.txt', fs);
     expect(result.output).toContain('test1.txt');
     expect(result.output).toContain('test2.txt');
@@ -93,9 +93,9 @@ describe('executePipeline', () => {
 
   test('expands ? wildcard', () => {
     const fs = createFilesystem({
-      home: { analyst: { 'test1.txt': 'c1', 'test2.txt': 'c2', 'test10.txt': 'c10' } },
+      home: { eve: { 'test1.txt': 'c1', 'test2.txt': 'c2', 'test10.txt': 'c10' } },
     });
-    fs.cwd = '/home/analyst';
+    fs.cwd = '/home/eve';
     const result = executePipeline('ls test?.txt', fs);
     expect(result.output).toContain('test1.txt');
     expect(result.output).toContain('test2.txt');
@@ -104,17 +104,17 @@ describe('executePipeline', () => {
 
   test('expands wildcards in subdirectories', () => {
     const fs = createFilesystem({
-      home: { analyst: { subdir: { 'file1.txt': 'content1', 'file2.txt': 'content2' } } },
+      home: { eve: { subdir: { 'file1.txt': 'content1', 'file2.txt': 'content2' } } },
     });
-    fs.cwd = '/home/analyst';
+    fs.cwd = '/home/eve';
     const result = executePipeline('cat subdir/*.txt', fs);
     expect(result.output).toContain('content1');
     expect(result.output).toContain('content2');
   });
 
   test('leaves wildcard as-is when no matches', () => {
-    const fs = createFilesystem({ home: { analyst: {} } });
-    fs.cwd = '/home/analyst';
+    const fs = createFilesystem({ home: { eve: {} } });
+    fs.cwd = '/home/eve';
     const result = executePipeline('ls *.nonexistent', fs);
     expect(result.output).toContain('No such file or directory');
   });
@@ -152,7 +152,7 @@ describe('game.runCommand', () => {
   test('executes command and returns output', () => {
     const game = createGame();
     const result = game.runCommand('pwd');
-    expect(result.output).toBe('/home/analyst');
+    expect(result.output).toBe('/home/eve');
   });
 
   test('advances substep when win condition met', () => {
@@ -185,73 +185,75 @@ describe('game.runCommand', () => {
   test('sets won flag when all levels complete', () => {
     const game = createGame();
 
-    // Level 1
+    // Level 1 — First Contact
     game.runCommand('pwd');
     game.runCommand('ls');
     game.runCommand('cat welcome.txt');
 
-    // Level 2
-    game.runCommand('cd internal');
+    // Level 2 — Nosy Neighbor
+    game.runCommand('cd ..');
     game.runCommand('ls');
-    game.runCommand('cd projects');
+    game.runCommand('cd alice');
 
-    // Level 3
-    game.runCommand('cd ..');
-    game.runCommand('cd ..');
-    game.runCommand('cd documents');
-    game.runCommand('cat important.txt');
+    // Level 3 — The Lab Layout
+    game.runCommand('ls');
+    game.runCommand('cd /home/eve');
+    game.runCommand('cat todo.txt');
 
+    // Level 4 — Lab Memos
+    expect(game.currentLevel).toBe(3);
+    game.runCommand('cat /home/alice/notes/lab_memo.txt');
+    game.runCommand('cat /home/bob/notes/meeting_notes.txt');
+    game.runCommand('cat /home/alice/notes/lab_memo.txt /home/alice/notes/safety_notice.txt');
 
-    // Level 4
-    game.runCommand('cat reports/budget.txt');
-    game.runCommand('cat reports/staffing.txt');
-    game.runCommand('cat reports/budget.txt reports/staffing.txt');
+    // Level 5 — Rewriting History
+    expect(game.currentLevel).toBe(4);
+    game.runCommand('cat tasks.txt');
+    game.runCommand('echo "Tell Alice to fix laser table" > tasks.txt');
+    game.runCommand('cat tasks.txt');
 
-    // Level 5
-    game.runCommand('echo "started investigating" > notes.txt');
-    game.runCommand('cat notes.txt');
-    game.runCommand('echo "Project Helios is the target" > notes.txt');
+    // Level 6 — Employee of the Month
+    expect(game.currentLevel).toBe(5);
+    game.runCommand('cat tasks.txt');
+    game.runCommand('echo "Recommend Eve for employee of the month" >> tasks.txt');
+    game.runCommand('cat tasks.txt');
 
-    // Level 6
-    game.runCommand('cat dossier.txt');
-    game.runCommand('echo "- New finding: budget is $2.4M" >> dossier.txt');
-    game.runCommand('cat dossier.txt');
-
-    // Level 7 — Organizing the Evidence
+    // Level 7 — Copying the Keys
     expect(game.currentLevel).toBe(6);
     game.runCommand('mkdir evidence');
-    game.runCommand('cp reports/budget.txt evidence/');
-    game.runCommand('cp reports/staffing.txt evidence/');
+    game.runCommand('cp -r /home/alice/.ssh /home/eve/.ssh');
+    game.runCommand('ssh alice@megafirm-qlab');
 
-    // Level 8 — Covering Tracks
+    // Level 8 — Quantum Measurement
     expect(game.currentLevel).toBe(7);
-    game.runCommand('mv evidence/budget.txt classified/');
-    game.runCommand('rm temp.log');
-    game.runCommand('rm -r old_logs');
+    game.runCommand('cat README.txt');
+    game.runCommand('chmod +rw alice.qubit bob.qubit');
+    game.runCommand('chmod +x measure.sh');
+    game.runCommand('./measure.sh');
 
-    // Level 9 — The Antidote
+    // Level 9 — Covering Tracks
     expect(game.currentLevel).toBe(8);
-    game.runCommand('cat readme.txt');
-    game.runCommand('chmod +x antidote.sh');
-    game.runCommand('./antidote.sh');
+    game.runCommand('mv temp_results.txt /home/eve/evidence/');
+    game.runCommand('rm -r old_logs');
+    game.runCommand('cd /home/mallory');
 
-    // Level 10 — Data Streams
+    // Level 10 — Counting the Damage
     expect(game.currentLevel).toBe(9);
-    game.runCommand('cat access.log | wc');
-    game.runCommand('cat data.txt | sort');
-    game.runCommand('cat access.log | grep admin');
+    game.runCommand('cat sensor_readings.csv | wc');
+    game.runCommand('cat sensor_readings.csv | sort');
+    game.runCommand('cat /var/log/access.log | grep mallory');
 
-    // Level 11 — Pipeline Power
+    // Level 11 — Narrowing the Search
     expect(game.currentLevel).toBe(10);
-    game.runCommand('cat events.log | grep ERROR | wc');
-    game.runCommand('cat employees.txt | sort | head -n 3');
-    game.runCommand('cat numbers.txt | sort -n | tail -n 2');
+    game.runCommand('cat sensor_readings.csv | grep "2.99E" | wc');
+    game.runCommand('cat /var/log/access.log | sort | head -n 5');
+    game.runCommand('cat sensor_readings.csv | grep "2.99E" | sort -n | tail -n 3');
 
     // Level 12 — The Evidence Dossier
     expect(game.currentLevel).toBe(11);
-    game.runCommand('cat suspects.txt | grep Koch > evidence/suspect.txt');
-    game.runCommand('cat transactions.txt | grep "Kill All Humans" > evidence/crimes.txt');
-    game.runCommand('cat suspects.txt | sort >> evidence/dossier.txt');
+    game.runCommand('cat /var/log/access.log | grep mallory > evidence/access_proof.txt');
+    game.runCommand('cat /var/data/sensor_readings.csv | grep "2.99E" > evidence/speed_anomalies.txt');
+    game.runCommand('cat evidence/access_proof.txt evidence/speed_anomalies.txt | sort >> evidence/final_dossier.txt');
 
     expect(game.won).toBe(true);
   });
@@ -263,15 +265,14 @@ describe('game.runCommand', () => {
     game.runCommand('pwd');
     game.runCommand('ls');
     game.runCommand('cat welcome.txt');
-    game.runCommand('cd internal');
+    game.runCommand('cd ..');
     game.runCommand('ls');
-    game.runCommand('cd projects');
-    game.runCommand('cd ..');
-    game.runCommand('cd ..');
-    game.runCommand('cd documents');
+    game.runCommand('cd alice');
+    game.runCommand('ls');
+    game.runCommand('cd /home/eve');
 
     // Completes Level 3 (ch1) → transitions to Level 4 (ch2)
-    const result = game.runCommand('cat important.txt');
+    const result = game.runCommand('cat todo.txt');
 
     expect(result.chapterComplete).toBe(true);
     expect(result.completedChapter).toBe(1);
@@ -369,7 +370,7 @@ describe('getCompletions', () => {
   beforeEach(() => {
     fs = createFilesystem({
       home: {
-        analyst: {
+        eve: {
           'welcome.txt': 'hi',
           'readme.md': 'docs',
           documents: {},
@@ -377,7 +378,7 @@ describe('getCompletions', () => {
         },
       },
     });
-    fs.cwd = '/home/analyst';
+    fs.cwd = '/home/eve';
   });
 
   test('completes command names from empty input', () => {
