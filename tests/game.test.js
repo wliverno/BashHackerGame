@@ -300,6 +300,26 @@ describe('hint command', () => {
   });
 });
 
+describe('user identity', () => {
+  test('game starts with currentUser as eve', () => {
+    const game = createGame();
+    expect(game.currentUser).toBe('eve');
+  });
+
+  test('switchUser changes currentUser', () => {
+    const game = createGame();
+    game.switchUser('alice');
+    expect(game.currentUser).toBe('alice');
+  });
+
+  test('restartLevel preserves currentUser', () => {
+    const game = createGame();
+    game.switchUser('alice');
+    game.restartLevel();
+    expect(game.currentUser).toBe('alice');
+  });
+});
+
 describe('getCompletions', () => {
   let fs;
 

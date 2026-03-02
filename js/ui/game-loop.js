@@ -17,6 +17,7 @@ export function createGame() {
   let currentSubStep = 0;
   let hintIndex = 0;
   let won = false;
+  let currentUser = 'eve';
 
   const loadLevel = (levelIndex) => {
     const level = levels[levelIndex];
@@ -32,6 +33,11 @@ export function createGame() {
     get currentSubStep() { return currentSubStep; },
     get fs() { return fs; },
     get won() { return won; },
+    get currentUser() { return currentUser; },
+
+    switchUser(user) {
+      currentUser = user;
+    },
 
     getObjective() {
       return levels[currentLevel].subSteps[currentSubStep].objective;
