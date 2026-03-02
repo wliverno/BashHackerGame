@@ -1,37 +1,68 @@
-// Base filesystem structure for the Umbrella Corp server
+// Base filesystem structure for the Megafirm Quantum Research Lab server
 // This persists across most levels - levels can extend or override as needed
 const BASE_FILESYSTEM = {
   home: {
-    analyst: {
-      '.bash_history': 'cd /var/log\ncat access.log\nexit',
-      'welcome.txt': 'Welcome to the Umbrella Corporation Internal Server.\nAll activity is monitored.\nSharing disabled for internal directories.',
-      documents: {
-        'memo.txt': 'Team — remember to update your passwords this quarter. -Admin',
-        'schedule.txt': 'Monday: Team standup\nTuesday: Server maintenance\nWednesday: Security audit',
+    eve: {
+      '.bash_history': 'ssh eve@megafirm-qlab\nls\npwd',
+      'welcome.txt': 'Welcome to the Megafirm Quantum Research Lab server.\nAll activity is monitored and logged.\nPlease report any anomalies to the lab manager.\n\nOther users on this system: alice, bob, mallory',
+      'todo.txt': '1. Review access logs for anomalies\n2. Check qubit calibration status\n3. Investigate reported equipment tampering',
+    },
+    alice: {
+      notes: {
+        'lab_memo.txt': 'REMINDER: Whoever keeps kicking the laser table — STOP.\nWe lost 3 hours of alignment yesterday.\nThe next person caught doing this will be assigned to clean the cryostat.\n\n— Alice',
+        'safety_notice.txt': 'OFFICIAL NOTICE: NO WHISTLING IN THE LAB\n\nThe qubits are experiencing anomalous decoherence.\nAfter extensive debugging, we traced the issue to\nacoustic vibrations in the 1-2 kHz range.\n\nIn other words: someone is whistling and it\'s\ndestroying our quantum states.\n\nThis is not a joke. Stop whistling.\n\n— Management',
       },
-      internal: {
-        'contacts.txt': 'Dick Cheney: dcheney@whitehouse.gov\nGeorge Wallace (deceased): gwallace@alabama.gov',
-        projects: {
-          'project_alpha.txt': 'Project Alpha: Status ACTIVE\nLead: dkoch@kochindustries.com\nBudget: $9.1 trillion',
-          'project_tango.txt': 'Project Tango: Status FAILED',
-        },
-        reports: {
-          'q1_summary.txt': 'Q1 was strong. Revenue up 12%, Human deaths up 2000%',
-          'activity_log.txt': 'analyst login: 02:14 UTC — suspicious activity detected',
-        },
+      research: {
+        'measure.sh': '#!/bin/bash\n# Quantum Measurement Script v2.3\n# WARNING: Running this script will collapse all qubit superpositions\n\necho "Initializing measurement apparatus..."\necho "Calibrating detectors..."\necho "Collapsing wavefunctions..."\necho ""\necho "Results:"\necho "  alice.qubit: SPIN_UP"\necho "  bob.qubit:   SPIN_DOWN"\necho ""\necho "Entanglement verified. Bell inequality violated."\necho "Spooky action at a distance confirmed."',
+        'alice.qubit': 'SUPERPOSITION',
+        'bob.qubit': 'SUPERPOSITION',
+        'README.txt': 'Quantum Measurement Procedure\n==============================\n1. Ensure qubit files (alice.qubit, bob.qubit) are readable and writable\n   Use: chmod +rw alice.qubit bob.qubit\n2. Make the measurement script executable\n   Use: chmod +x measure.sh\n3. Run the measurement\n   Use: ./measure.sh\n\nWARNING: Measurement collapses superposition. This cannot be undone.\nSchrödinger sends his regards.',
       },
+      '.ssh': {
+        'id_rsa': '-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA7q2ZfJfv4Hk0rFOBBNxE\nTOTALLY_REAL_PRIVATE_KEY_TRUST_ME\nAlice really needs to fix her permissions...\n-----END RSA PRIVATE KEY-----',
+        'id_rsa.pub': 'ssh-rsa AAAAB3NzaC1yc2EAAAA... alice@megafirm-qlab',
+        'authorized_keys': 'ssh-rsa AAAAB3NzaC1yc2EAAAA... alice@megafirm-qlab',
+      },
+    },
+    bob: {
+      notes: {
+        'meeting_notes.txt': 'Qubit Error Rate Meeting — Minutes\n===================================\nAttendees: Alice, Bob, Mallory, Lab Manager\n\nAlice suspects environmental interference.\nVibration analysis shows anomalies during off-hours.\n\nI think it\'s something else. The error patterns\nare too regular to be random noise. Someone is\ndeliberately introducing interference.\n\nMallory suggested we "just restart the system."\nSuspiciously unhelpful.\n\n— Bob',
+        'calibration_log.txt': 'Qubit calibration results:\nMonday:    99.2% fidelity\nTuesday:   98.7% fidelity\nWednesday: 91.3% fidelity  ← anomaly\nThursday:  99.1% fidelity\nFriday:    88.4% fidelity  ← anomaly\n\nNote: Anomalies correlate with Mallory\'s maintenance windows.',
+      },
+    },
+    mallory: {
+      'maintenance_schedule.txt': 'Weekly Maintenance Schedule\nMonday: Cooling system check\nWednesday: "Calibration adjustments"\nFriday: "Environmental controls"\n\nNote to self: make sure to clear logs after each session',
+      '.plans': {
+        'sabotage_notes.txt': 'Phase 1: Introduce subtle interference during maintenance windows\nPhase 2: Gradually increase speed parameter toward c\nPhase 3: When the timestamps go negative, blame it on "quantum effects"\nPhase 4: ???\nPhase 5: Profit\n\nRemember: if anyone asks, the decoherence is from "acoustic vibrations"',
+        'speed_hack.sh': '#!/bin/bash\n# Speed parameter injection script\n# Target: 2.99E8 m/s (just under speed of light)\n# Side effects: time dilation in log timestamps\n# "It\'s not a bug, it\'s a feature" — Mallory',
+      },
+    },
+  },
+  var: {
+    data: {
+      'sensor_readings.csv': 'timestamp,temperature_K,power_W,efficiency_pct,speed_ms,qubit_error_rate\n2024-01-15T08:00:00,0.015,250,99.2,1.50E2,0.008\n2024-01-15T09:00:00,0.015,251,99.1,1.52E2,0.009\n2024-01-15T10:00:00,0.016,249,98.7,1.48E2,0.012\n2024-01-15T11:00:00,0.018,255,91.3,2.99E8,0.145\n2024-01-15T12:00:00,0.015,250,99.0,1.51E2,0.010\n2024-01-15T13:00:00,0.015,248,98.9,1.49E2,0.011\n2024-01-15T14:00:00,0.019,260,88.4,2.99E8,0.203\n2024-01-15T15:00:00,0.015,250,99.1,1.50E2,0.009\n2024-01-16T08:00:00,0.015,249,99.0,1.51E2,0.010\n2024-01-16T09:00:00,0.016,252,98.5,1.53E2,0.013\n2024-01-16T10:00:00,0.021,270,85.1,2.99E8,0.287\n2024-01-16T11:00:00,0.015,250,99.2,1.50E2,0.008\n2024-01-16T12:00:00,0.015,251,99.0,1.52E2,0.010\n2024-01-16T13:00:00,0.022,275,82.3,2.99E8,0.312\n2024-01-16T14:00:00,0.015,249,98.8,1.49E2,0.011\n2024-01-16T15:00:00,0.015,250,99.1,1.50E2,0.009',
+    },
+    log: {
+      'access.log': 'Jan 15 07:55:01 megafirm-qlab: alice logged in\nJan 15 08:02:33 megafirm-qlab: bob logged in\nJan 15 10:45:12 megafirm-qlab: mallory logged in\nJan 15 10:47:00 megafirm-qlab: mallory accessed /var/data/sensor_readings.csv\nJan 15 10:52:18 megafirm-qlab: mallory modified speed parameter\nJan 15 10:55:00 megafirm-qlab: mallory cleared system logs\nJan 15 11:00:01 megafirm-qlab: ANOMALY speed=2.99E8\nJan 15 14:30:00 megafirm-qlab: mallory logged in\nJan 15 14:32:15 megafirm-qlab: mallory accessed /var/data/sensor_readings.csv\nJan 15 14:35:00 megafirm-qlab: mallory modified speed parameter\nJan 15 14:40:01 megafirm-qlab: ANOMALY speed=2.99E8\n-00:00:01 megafirm-qlab: TEMPORAL ERROR negative timestamp detected\n-00:00:03 megafirm-qlab: TEMPORAL ERROR causality violation\nJan 15 17:00:00 megafirm-qlab: alice logged out\nJan 15 17:15:00 megafirm-qlab: bob logged out\nJan 16 08:00:01 megafirm-qlab: alice logged in\nJan 16 09:45:00 megafirm-qlab: mallory logged in\nJan 16 09:48:22 megafirm-qlab: mallory modified speed parameter\nJan 16 10:00:01 megafirm-qlab: ANOMALY speed=2.99E8\n-00:00:02 megafirm-qlab: TEMPORAL ERROR timeline desynchronized\nJan 16 13:15:00 megafirm-qlab: mallory logged in\nJan 16 13:18:44 megafirm-qlab: mallory modified speed parameter\nJan 16 13:20:01 megafirm-qlab: ANOMALY speed=2.99E8\n-00:00:05 megafirm-qlab: TEMPORAL ERROR the universe is not amused',
     },
   },
 };
 
-// Protected lore files that trigger game over if deleted/moved
+// Protected files that trigger game over if deleted/moved
 const PROTECTED_FILES = [
-  '/home/analyst/welcome.txt',
-  '/home/analyst/internal/contacts.txt',
-  '/home/analyst/internal/projects/project_alpha.txt',
-  '/home/analyst/internal/projects/project_tango.txt',
-  '/home/analyst/internal/reports/q1_summary.txt',
+  '/home/eve/welcome.txt',
+  '/home/alice/.ssh/id_rsa',
+  '/home/alice/research/alice.qubit',
+  '/home/alice/research/bob.qubit',
+  '/var/data/sensor_readings.csv',
+  '/var/log/access.log',
 ];
+
+// Standard restricted directories
+const STANDARD_RESTRICTED = {
+  '/home/alice/research': 'alice',
+  '/home/mallory/.plans': 'mallory',
+};
 
 // Deep merge utility for extending base filesystem
 function mergeFilesystem(base, override) {
@@ -55,22 +86,25 @@ function mergeFilesystem(base, override) {
 }
 
 export const levels = [
+  // ═══════════════════════════════════════
+  // CHAPTER 1: LOGGING IN
+  // Commands: pwd, ls, cd, cat
+  // ═══════════════════════════════════════
+
   {
     id: 1,
     chapter: 1,
     title: 'First Contact',
-    story: `You're in. The SSH connection is live.
+    story: `You're in. The SSH connection to Megafirm's quantum lab server is live.
 
-The server is quiet. You're in someone's home directory — probably an analyst account they forgot to disable.
+You're logged in as Eve — a security auditor brought in to investigate
+reports of equipment tampering. Something is wrong with their quantum computer.
 
-First things first: figure out where you are and what's around you.`,
-    filesystem: mergeFilesystem(BASE_FILESYSTEM, {
-      var: {
-        messages: 'System Notice: Scheduled maintenance on Saturday.\nSystem Notice: New security policies in effect.\nSystem Notice: Report any suspicious activity.',
-      },
-    }),
+First things first: figure out where you are.`,
+    filesystem: mergeFilesystem(BASE_FILESYSTEM, {}),
     protectedFiles: PROTECTED_FILES,
-    startDir: '/home/analyst',
+    startDir: '/home/eve',
+    restrictedDirs: STANDARD_RESTRICTED,
     subSteps: [
       {
         objective: 'Use `pwd` to see where you are on the server.',
@@ -89,7 +123,7 @@ First things first: figure out where you are and what's around you.`,
         winCondition: (cmd, output, fs) => cmd.trim().startsWith('ls'),
       },
       {
-        objective: "There's a file called `welcome.txt`. Print the contents of the file to the terminal (type 'hint' for a hint).",
+        objective: "There's a file called `welcome.txt`. Use `cat` to read it.",
         hints: [
           'cat displays the contents of a file',
           'Syntax: cat [filename]',
@@ -102,48 +136,42 @@ First things first: figure out where you are and what's around you.`,
   {
     id: 2,
     chapter: 1,
-    title: 'Going Deeper',
-    story: `Good. You've got your bearings.
+    title: 'Nosy Neighbor',
+    story: `The welcome message mentioned other users: alice, bob, mallory.
 
-The welcome message mentioned "internal" directories. You noticed a folder called "internal" in the directory listing.
+Your home directory is /home/eve. The other users should have directories
+in /home too. Time to see who else is on this server.
 
-Time to explore. You need to learn to move around this filesystem.`,
-    filesystem: mergeFilesystem(BASE_FILESYSTEM, {
-      home: {
-        analyst: {
-          '.bash_history': 'ls\ncd internal\nls\nexit',
-          internal: {
-            'readme.txt': 'Internal Resources Directory\n\nProjects are stored in /home/analyst/internal/projects\nReports go in /home/analyst/internal/reports',
-          },
-        },
-      },
-    }),
+Use cd to change directories. cd .. goes up one level.`,
+    filesystem: mergeFilesystem(BASE_FILESYSTEM, {}),
     protectedFiles: PROTECTED_FILES,
-    startDir: '/home/analyst',
+    startDir: '/home/eve',
+    restrictedDirs: STANDARD_RESTRICTED,
     subSteps: [
       {
-        objective: 'Change into the `internal` directory using `cd internal`.',
+        objective: 'Navigate up to `/home` using `cd ..`.',
         hints: [
           'cd stands for "change directory"',
-          'Type: cd internal',
+          '.. means "parent directory"',
+          'Type: cd ..',
         ],
-        winCondition: (cmd, output, fs) => fs.cwd === '/home/analyst/internal',
+        winCondition: (cmd, output, fs) => fs.cwd === '/home',
       },
       {
-        objective: 'List the contents of this directory with `ls`.',
+        objective: 'Use `ls` to see what other users have home directories.',
         hints: [
           'You know this one!',
           'Type: ls',
         ],
-        winCondition: (cmd, output, fs) => cmd.trim().startsWith('ls') && fs.cwd === '/home/analyst/internal',
+        winCondition: (cmd, output, fs) => cmd.trim().startsWith('ls') && fs.cwd === '/home',
       },
       {
-        objective: "There's a `projects` folder. Go into it with `cd projects`.",
+        objective: "Interesting... Let's check out Alice's directory. Use `cd alice`.",
         hints: [
-          'Same as before — use cd to change directory',
-          'Type: cd projects',
+          'cd changes to a directory',
+          'Type: cd alice',
         ],
-        winCondition: (cmd, output, fs) => fs.cwd === '/home/analyst/internal/projects',
+        winCondition: (cmd, output, fs) => fs.cwd === '/home/alice',
       },
     ],
   },
@@ -151,243 +179,230 @@ Time to explore. You need to learn to move around this filesystem.`,
   {
     id: 3,
     chapter: 1,
-    title: 'Finding Your Way Back',
-    story: `You've gone deep into the directory structure. But sometimes you need to go back up.
+    title: 'The Lab Layout',
+    story: `You're in Alice's home directory. She's the lead quantum researcher.
 
-In Linux, \`.\` means "current directory" and \`..\` means "parent directory".
+Her directory has some interesting subdirectories. But be careful —
+some areas might be restricted.
 
-You're currently in /home/analyst/internal/projects. Time to learn to navigate back.`,
-    filesystem: mergeFilesystem(BASE_FILESYSTEM, {
-      home: {
-        analyst: {
-          '.bash_history': 'cd ..\nls\npwd',
-          documents: {
-            'important.txt': 'You found the important file! Well done.',
-          },
-        },
-      },
-    }),
+You can also use cd with full paths, like cd /home/eve, to jump
+directly to a location.`,
+    filesystem: mergeFilesystem(BASE_FILESYSTEM, {}),
     protectedFiles: PROTECTED_FILES,
-    startDir: '/home/analyst/internal/projects',
+    startDir: '/home/alice',
+    restrictedDirs: STANDARD_RESTRICTED,
     subSteps: [
       {
-        objective: 'Go back to the /home/analyst directory',
+        objective: 'Use `ls` to see what\'s in Alice\'s directory.',
         hints: [
-          'Use the cd command to change directory',
-          'Type: cd ..',
-          'Type: cd /home/analyst to go there directly',
+          'ls lists files and folders',
+          'Type: ls',
         ],
-        winCondition: (cmd, output, fs) => fs.cwd === '/home/analyst',
+        winCondition: (cmd, output, fs) => cmd.trim().startsWith('ls') && fs.cwd === '/home/alice',
       },
       {
-        objective: "There's a `documents` folder. Navigate into it and read `important.txt`.",
+        objective: 'Navigate back to your home directory at `/home/eve`.',
         hints: [
-          'First cd into documents, then use cat',
-          'Type: cd documents',
-          'Then: cat important.txt',
+          'You can use cd with .. to go up, or use a full path',
+          'Type: cd /home/eve or cd ../eve',
         ],
-        winCondition: (cmd, output, fs) => {
-          return cmd.includes('cat') && cmd.includes('important.txt') && output.includes('You found');
-        },
+        winCondition: (cmd, output, fs) => fs.cwd === '/home/eve',
+      },
+      {
+        objective: 'Read your `todo.txt` to see what you need to investigate.',
+        hints: [
+          'cat displays the contents of a file',
+          'Try: cat todo.txt',
+        ],
+        winCondition: (cmd, output, fs) => cmd.includes('cat') && cmd.includes('todo.txt') && output.includes('anomalies'),
       },
     ],
   },
+
+  // ═══════════════════════════════════════
+  // CHAPTER 2: READING THE LAB
+  // Commands: cat (with paths), echo, >, >>
+  // ═══════════════════════════════════════
 
   {
     id: 4,
     chapter: 2,
-    title: 'Gathering Intel',
-    story: `You've explored the basics. Now it's time to dig deeper.
+    title: 'Lab Memos',
+    story: `Time to dig into the lab communications. Alice and Bob have notes
+in their home directories that might reveal what's going on.
 
-The reports directory might have something interesting. Time to start reading files properly.
-
-cat is your best friend here — it dumps file contents straight to the terminal.`,
-    filesystem: mergeFilesystem(BASE_FILESYSTEM, {
-      home: {
-        analyst: {
-          reports: {
-            'budget.txt': 'Q3 Budget Report\nProject "Kill All Humans": $2.4B approved\nProject "Puppy Love": $800K pending',
-            'staffing.txt': 'Recent Personnel Changes\nJ. T-virus hired — Project "Kill All Humans" lead\nJ. Bond transferred — Project "Puppy Love"',
-          },
-          internal: {
-            'memo.txt': 'All personnel: report to Lab 3 immediately.',
-          },
-        },
-      },
-    }),
+You can cat files in other directories by using the full path:
+cat /home/alice/notes/filename.txt`,
+    filesystem: mergeFilesystem(BASE_FILESYSTEM, {}),
     protectedFiles: PROTECTED_FILES,
-    startDir: '/home/analyst',
+    startDir: '/home/eve',
+    restrictedDirs: STANDARD_RESTRICTED,
     subSteps: [
       {
-        objective: 'Read the budget report.',
+        objective: 'Read Alice\'s lab memo about the laser table.',
         hints: [
-          'cat can read files in subdirectories: cat path/to/file',
-          'Syntax: cat path/to/filename',
-          'Try: cat reports/budget.txt',
+          'cat can read files in other directories using the full path',
+          'Syntax: cat /path/to/file',
+          'Try: cat /home/alice/notes/lab_memo.txt',
         ],
-        winCondition: (cmd, output, fs) => output.includes('Kill All Humans') || output.includes('Puppy Love'),
+        winCondition: (cmd, output, fs) => output.includes('kicking the laser table'),
       },
       {
-        objective: 'Now read the staffing report.',
+        objective: 'Read Bob\'s meeting notes — he seems suspicious about something.',
         hints: [
-          'Same idea — different file in the same directory',
-          'Syntax: cat path/to/filename',
-          'Try: cat reports/staffing.txt',
+          'Bob\'s notes are in /home/bob/notes/',
+          'Try: cat /home/bob/notes/meeting_notes.txt',
         ],
-        winCondition: (cmd, output, fs) => output.includes('T-virus') || output.includes('Bond'),
+        winCondition: (cmd, output, fs) => output.includes('deliberately introducing interference'),
       },
       {
-        objective: 'Read both reports in a single command.',
+        objective: 'Read both of Alice\'s notes in a single command. cat can take multiple files.',
         hints: [
-          'cat can take multiple files: cat file1 file2',
-          'Try: cat reports/budget.txt reports/staffing.txt',
+          'cat can display multiple files: cat file1 file2',
+          'Try: cat /home/alice/notes/lab_memo.txt /home/alice/notes/safety_notice.txt',
         ],
         winCondition: (cmd, output, fs) => {
-          return cmd.includes('budget.txt') && cmd.includes('staffing.txt');
+          return cmd.includes('lab_memo.txt') && cmd.includes('safety_notice.txt');
         },
       },
     ],
   },
+
   {
     id: 5,
     chapter: 2,
-    title: 'Leaving a Trail',
-    story: `You've been reading files. But what if you need to write one?
+    title: 'Rewriting History',
+    story: `There's a tasks.txt file in your home directory — assigned by the lab manager.
 
 In Linux, you can redirect output into a file using >.
-echo "hello" > file.txt creates file.txt with the text "hello".
+echo "text" > file.txt creates (or overwrites) a file.
 
-If the file already exists, > overwrites it completely.`,
+Let's see what thankless tasks you've been assigned...`,
     filesystem: mergeFilesystem(BASE_FILESYSTEM, {
       home: {
-        analyst: {
-          reports: {
-            'budget.txt': 'Project "Kill All Humans": $2.4B approved',
-            'staffing.txt': 'J. T-virus — Project lead',
-          },
+        eve: {
+          'tasks.txt': '1. Fix the laser table alignment (AGAIN)\n2. Recalibrate qubit sensors\n3. Update lab safety documentation\n4. Clean the cryostat\n5. Apologize to the laser table',
         },
       },
     }),
     protectedFiles: PROTECTED_FILES,
-    startDir: '/home/analyst',
+    startDir: '/home/eve',
+    restrictedDirs: STANDARD_RESTRICTED,
     subSteps: [
       {
-        objective: 'Create a file called `notes.txt` using echo and `>`.',
+        objective: 'Read your assigned tasks with `cat tasks.txt`.',
+        hints: [
+          'cat displays file contents',
+          'Try: cat tasks.txt',
+        ],
+        winCondition: (cmd, output, fs) => output.includes('Fix the laser table'),
+      },
+      {
+        objective: 'Use echo and > to overwrite tasks.txt. Delegate the laser table to Alice.',
         hints: [
           'echo outputs text, > redirects it to a file',
           'Syntax: echo "text" > filename',
-          'Try: echo "started investigating" > notes.txt',
-        ],
-        winCondition: (cmd, output, fs) => fs.readFile('notes.txt') !== null,
-      },
-      {
-        objective: 'Read your notes back with cat.',
-        hints: [
-          'You know how to do this one already',
-          'Syntax: cat filename',
-          'Try: cat notes.txt',
+          'Try: echo "Tell Alice to fix laser table" > tasks.txt',
         ],
         winCondition: (cmd, output, fs) => {
-          return cmd.includes('cat') && cmd.includes('notes.txt') && output.length > 0;
+          const content = fs.readFile('tasks.txt');
+          return cmd.includes('>') && !cmd.includes('>>') && content !== null && !content.includes('Fix the laser table alignment');
         },
       },
       {
-        objective: 'Overwrite your notes with new intel using `>` again.',
+        objective: 'Read tasks.txt again to see that > completely overwrites the file.',
         hints: [
-          '> replaces the entire file contents — try it again on notes.txt',
-          'Syntax: echo "text" > filename',
-          'Try: echo "found something suspicious" > notes.txt',
+          'cat displays file contents',
+          'Notice: all the original tasks are gone!',
+          'Try: cat tasks.txt',
         ],
         winCondition: (cmd, output, fs) => {
-          return cmd.includes('>') && !cmd.includes('>>') && cmd.includes('notes.txt');
+          return cmd.includes('cat') && cmd.includes('tasks.txt') && output.length > 0;
         },
       },
     ],
   },
+
   {
     id: 6,
     chapter: 2,
-    title: 'Building the Dossier',
-    story: `You've been writing notes, but > keeps wiping them out.
+    title: 'Employee of the Month',
+    story: `You overwrote the whole file — > replaces everything.
 
-There's another redirect operator: >>.
+There's another redirect operator: >>
 It appends to a file instead of overwriting.
 
-echo "new line" >> file.txt adds to the end of file.txt.`,
+echo "new line" >> file.txt adds to the end of file.txt.
+
+Time to add one more item to your revised task list...`,
     filesystem: mergeFilesystem(BASE_FILESYSTEM, {
       home: {
-        analyst: {
-          'dossier.txt': 'Investigation Log\n- Server access: confirmed\n- Suspicious projects detected\n',
-          reports: {
-            'budget.txt': 'Project "Kill All Humans": $2.4B approved',
-          },
+        eve: {
+          'tasks.txt': 'Tell Alice to fix laser table',
         },
       },
     }),
     protectedFiles: PROTECTED_FILES,
-    startDir: '/home/analyst',
+    startDir: '/home/eve',
+    restrictedDirs: STANDARD_RESTRICTED,
     subSteps: [
       {
-        objective: 'Read the existing dossier.',
+        objective: 'Read your current tasks.txt.',
         hints: [
-          'There is a file called dossier.txt right here',
-          'Syntax: cat filename',
-          'Try: cat dossier.txt',
+          'cat displays file contents',
+          'Try: cat tasks.txt',
         ],
-        winCondition: (cmd, output, fs) => output.includes('Investigation Log'),
+        winCondition: (cmd, output, fs) => output.includes('Alice') && output.includes('laser'),
       },
       {
-        objective: 'Append a new finding to the dossier using `>>`.',
+        objective: 'Use >> to append a new line: recommend yourself for employee of the month.',
         hints: [
           '>> appends to a file without erasing it',
           'Syntax: echo "text" >> filename',
-          'Try: echo "- New finding: suspicious budgets detected" >> dossier.txt',
+          'Try: echo "Recommend Eve for employee of the month" >> tasks.txt',
         ],
         winCondition: (cmd, output, fs) => {
-          const content = fs.readFile('dossier.txt');
-          return cmd.includes('>> dossier.txt') && content && content.includes('Investigation Log');
+          const content = fs.readFile('tasks.txt');
+          return cmd.includes('>>') && cmd.includes('tasks.txt') && content && content.includes('Alice');
         },
       },
       {
-        objective: 'Read the dossier again to confirm your addition.',
+        objective: 'Read tasks.txt again to admire your handiwork.',
         hints: [
           'cat displays file contents',
-          'You should see both the original and your new line',
-          'Try: cat dossier.txt',
+          'You should see both lines now',
+          'Try: cat tasks.txt',
         ],
         winCondition: (cmd, output, fs) => {
-          return cmd.trim().startsWith('cat') && cmd.includes('dossier.txt');
+          return cmd.trim().startsWith('cat') && cmd.includes('tasks.txt');
         },
       },
     ],
   },
+
+  // ═══════════════════════════════════════
+  // CHAPTER 3: INSIDE THE LAB
+  // Commands: mkdir, cp, mv, rm, chmod, ssh
+  // ═══════════════════════════════════════
+
   {
     id: 7,
     chapter: 3,
-    title: 'Organizing the Evidence',
-    story: `Your notes are scattered across the server. Time to get organized.
+    title: 'Copying the Keys',
+    story: `You noticed Alice has a .ssh directory with her private keys.
 
-mkdir creates new directories. cp copies files.
+Normally, you'd NEVER be able to just copy someone's SSH keys like this.
+Alice really needs to fix her file permissions. But hey, you're a
+security auditor — finding these vulnerabilities is literally your job.
 
-A good analyst keeps their evidence in one place.`,
-    filesystem: mergeFilesystem(BASE_FILESYSTEM, {
-      home: {
-        analyst: {
-          reports: {
-            'budget.txt': 'Project "Kill All Humans": $2.4B approved\nProject Alpha: $9.1 trillion approved',
-            'staffing.txt': 'J. T-virus — Project "Kill All Humans" lead\nHuman deaths up 2000% this quarter',
-          },
-          internal: {
-            'memo.txt': 'All personnel: report to Lab 3 immediately. Bring protective equipment.',
-          },
-        },
-      },
-    }),
+mkdir creates directories. cp copies files. cp -r copies directories.`,
+    filesystem: mergeFilesystem(BASE_FILESYSTEM, {}),
     protectedFiles: PROTECTED_FILES,
-    startDir: '/home/analyst',
+    startDir: '/home/eve',
+    restrictedDirs: STANDARD_RESTRICTED,
     subSteps: [
       {
-        objective: 'Create a directory called `evidence` to hold your findings.',
+        objective: 'Create a directory called `evidence` to store your findings.',
         hints: [
           'mkdir creates a new directory',
           'Syntax: mkdir dirname',
@@ -396,295 +411,292 @@ A good analyst keeps their evidence in one place.`,
         winCondition: (cmd, output, fs) => fs.listDir('evidence') !== null,
       },
       {
-        objective: 'Copy the budget report into your evidence directory.',
+        objective: "Copy Alice's .ssh directory to your home. Use `cp -r` for directories.",
         hints: [
-          'cp copies files',
-          'Syntax: cp source destination',
-          'Try: cp reports/budget.txt evidence/',
+          'cp -r copies directories recursively',
+          'Syntax: cp -r source destination',
+          'Try: cp -r /home/alice/.ssh /home/eve/.ssh',
         ],
-        winCondition: (cmd, output, fs) => fs.readFile('evidence/budget.txt') !== null,
+        winCondition: (cmd, output, fs) => fs.readFile('/home/eve/.ssh/id_rsa') !== null,
       },
       {
-        objective: 'Copy the staffing report into evidence as well.',
+        objective: "Now use Alice's stolen keys to SSH in as her: `ssh alice@megafirm-qlab`",
         hints: [
-          'Same idea — different source file',
-          'Syntax: cp source destination',
-          'Try: cp reports/staffing.txt evidence/',
+          'ssh connects to a server as a different user',
+          'Type: ssh alice@megafirm-qlab',
         ],
-        winCondition: (cmd, output, fs) => fs.readFile('evidence/staffing.txt') !== null,
+        winCondition: (cmd, output, fs) => cmd.includes('ssh') && cmd.includes('alice'),
       },
     ],
   },
+
   {
     id: 8,
     chapter: 3,
-    title: 'Covering Tracks',
-    story: `Footprints everywhere. If someone checks these directories, they'll know you were here.
+    title: 'Quantum Measurement',
+    story: `You're logged in as Alice now. Her research directory is accessible.
 
-mv moves (or renames) files. rm removes them entirely.
+Inside is a quantum measurement script (measure.sh) and two qubit files.
+The qubits are in superposition — both SPIN_UP and SPIN_DOWN simultaneously.
 
-Be careful with rm — there's no undo.`,
-    filesystem: mergeFilesystem(BASE_FILESYSTEM, {
-      home: {
-        analyst: {
-          evidence: {
-            'budget.txt': 'Project "Kill All Humans": $2.4B',
-            'staffing.txt': 'J. T-virus — Project lead',
-          },
-          classified: {},
-          'temp.log': 'debug output from 02:14 — analyst session',
-          old_logs: {
-            'access.log': 'Feb 03 22:41 analyst login',
-            'auth.log': 'Feb 03 22:41 ssh auth success',
-          },
-        },
-      },
-    }),
+To run the measurement, the qubit files need to be readable/writable
+and the script needs to be executable. Read the README for instructions.`,
+    filesystem: mergeFilesystem(BASE_FILESYSTEM, {}),
     protectedFiles: PROTECTED_FILES,
-    startDir: '/home/analyst',
+    startDir: '/home/alice/research',
+    restrictedDirs: {
+      '/home/mallory/.plans': 'mallory',
+    },
     subSteps: [
       {
-        objective: 'Move the budget report into the `classified` directory.',
+        objective: 'Read the README.txt for measurement instructions.',
         hints: [
-          'mv moves files (like cp but removes the original)',
-          'Syntax: mv source destination',
-          'Try: mv evidence/budget.txt classified/',
-        ],
-        winCondition: (cmd, output, fs) => {
-          return fs.readFile('classified/budget.txt') !== null && fs.readFile('evidence/budget.txt') === null;
-        },
-      },
-      {
-        objective: "Delete the temp log — it's evidence you were here.",
-        hints: [
-          'rm removes a file permanently (no undo!)',
-          'Syntax: rm filename',
-          'Try: rm temp.log',
-        ],
-        winCondition: (cmd, output, fs) => fs.readFile('temp.log') === null,
-      },
-      {
-        objective: 'Delete the entire old_logs directory.',
-        hints: [
-          'rm -r removes directories and everything inside',
-          'Syntax: rm -r dirname',
-          'Try: rm -r old_logs',
-        ],
-        winCondition: (cmd, output, fs) => fs.listDir('old_logs') === null,
-      },
-    ],
-  },
-  {
-    id: 9,
-    chapter: 3,
-    title: 'The Antidote',
-    story: `Deep in the server you found a script called antidote.sh.
-
-The T-virus is spreading. This script should contain the cure formula.
-
-But it won't run. Something's wrong with the permissions.`,
-    filesystem: mergeFilesystem(BASE_FILESYSTEM, {
-      home: {
-        analyst: {
-          'antidote.sh': 'T-VIRUS ANTIDOTE DATABASE\nAccessing cure formula...\n\nERROR: NO KNOWN CURE\n\nSystem status: The Cheat is not dead.',
-          'readme.txt': 'The script needs to be executable. Use chmod +x, then run it with ./antidote.sh',
-        },
-      },
-    }),
-    protectedFiles: PROTECTED_FILES,
-    startDir: '/home/analyst',
-    subSteps: [
-      {
-        objective: 'Read the readme to understand what needs to be done.',
-        hints: [
-          'cat can read files',
-          'Syntax: cat filename',
-          'Try: cat readme.txt',
+          'cat displays file contents',
+          'Try: cat README.txt',
         ],
         winCondition: (cmd, output, fs) => output.includes('chmod'),
       },
       {
-        objective: 'Make antidote.sh executable with chmod.',
+        objective: 'Set up permissions: make qubit files readable/writable (+rw) and measure.sh executable (+x).',
         hints: [
-          'chmod changes file permissions',
-          'Syntax: chmod +x filename',
-          'Try: chmod +x antidote.sh',
+          'chmod changes permissions. +rw = read+write, +x = executable',
+          'You can chmod multiple files: chmod +rw file1 file2',
+          'Try: chmod +rw alice.qubit bob.qubit then chmod +x measure.sh',
         ],
-        winCondition: (cmd, output, fs) => fs.getPermissions('antidote.sh').has('x'),
+        winCondition: (cmd, output, fs) => {
+          return fs.getPermissions('alice.qubit').has('r') &&
+                 fs.getPermissions('alice.qubit').has('w') &&
+                 fs.getPermissions('bob.qubit').has('r') &&
+                 fs.getPermissions('bob.qubit').has('w') &&
+                 fs.getPermissions('measure.sh').has('x');
+        },
       },
       {
-        objective: 'Run the script to find the cure.',
+        objective: 'Run ./measure.sh to collapse the quantum superposition!',
         hints: [
           './ runs a script in the current directory',
-          'Syntax: ./scriptname',
-          'Try: ./antidote.sh',
+          'Try: ./measure.sh',
         ],
-        winCondition: (cmd, output, fs) => output.includes('NO KNOWN CURE'),
+        winCondition: (cmd, output, fs) => output.includes('Entanglement verified'),
       },
     ],
   },
+
   {
-    id: 10,
-    chapter: 4,
-    title: 'Data Streams',
-    story: `You've found a data dump — thousands of lines of unorganized logs.
+    id: 9,
+    chapter: 3,
+    title: 'Covering Tracks',
+    story: `The quantum measurement worked. The qubits collapsed exactly as predicted —
+alice.qubit is SPIN_UP, bob.qubit is SPIN_DOWN. Entanglement confirmed.
 
-Sifting through this manually would take hours. But you don't need to.
+But you've been leaving traces everywhere. Before Mallory notices someone's
+been poking around, you need to move evidence to safety and clean up.
 
-Pipes let you chain commands together. The output of one becomes the input of the next.
-
-Time to learn the power of pipelines.`,
+mv moves files (or renames them). rm removes files permanently.`,
     filesystem: mergeFilesystem(BASE_FILESYSTEM, {
       home: {
-        analyst: {
-          'access.log': 'User login: admin\nUser login: analyst\nUser logout: admin\nUser login: guest\nUser logout: analyst\nUser login: admin\nUser logout: guest\nError: failed login attempt',
-          'data.txt': 'zebra\napple\nbanana\ncherry\napple\nzebra\ndate',
-          'report.txt': 'Project Alpha findings\nSuspicious activity detected\nBudget anomaly: $9.1T\nStaff changes: 200% increase\nProject status: CLASSIFIED',
+        alice: {
+          'temp_results.txt': 'Measurement results: entanglement verified\nBell inequality: violated (S = 2.73 > 2)\nQuantum state fidelity: 99.7%\nTimestamp: 2024-01-16T14:30:00',
+          old_logs: {
+            'debug_jan14.log': 'DEBUG: qubit initialization sequence started\nDEBUG: cooling system nominal\nDEBUG: measurement apparatus calibrated',
+            'debug_jan15.log': 'DEBUG: anomalous speed reading detected\nDEBUG: timestamp synchronization error\nDEBUG: this is fine. everything is fine.',
+          },
         },
-      },
-    }),
-    protectedFiles: PROTECTED_FILES,
-    startDir: '/home/analyst',
-    subSteps: [
-      {
-        objective: 'Count how many lines are in access.log using `cat access.log | wc`.',
-        hints: [
-          'The pipe character | sends output from one command to another',
-          'wc counts lines, words, and characters',
-          'Type: cat access.log | wc',
-        ],
-        winCondition: (cmd, output, fs) => cmd.includes('cat') && cmd.includes('access.log') && cmd.includes('|') && cmd.includes('wc'),
-      },
-      {
-        objective: 'Sort the lines in data.txt using `cat data.txt | sort`.',
-        hints: [
-          'sort arranges lines in alphabetical order',
-          'Pipe the cat output into sort',
-          'Type: cat data.txt | sort',
-        ],
-        winCondition: (cmd, output, fs) => cmd.includes('cat') && cmd.includes('data.txt') && cmd.includes('|') && cmd.includes('sort'),
-      },
-      {
-        objective: 'Find all lines in access.log containing "admin" using grep.',
-        hints: [
-          'grep searches for patterns in text',
-          'Syntax: cat file | grep pattern',
-          'Type: cat access.log | grep admin',
-        ],
-        winCondition: (cmd, output, fs) => {
-          return cmd.includes('grep') && cmd.includes('admin') && output.includes('admin');
-        },
-      },
-    ],
-  },
-  {
-    id: 11,
-    chapter: 4,
-    title: 'Pipeline Power',
-    story: `You're getting the hang of this.
-
-Pipes can be chained together — multiple stages, each refining the data further.
-
-The Umbrella logs are starting to reveal patterns. Time to dig deeper.`,
-    filesystem: mergeFilesystem(BASE_FILESYSTEM, {
-      home: {
-        analyst: {
-          'events.log': 'ERROR: database connection failed\nWARNING: low memory\nINFO: user login\nERROR: file not found\nINFO: server started\nERROR: timeout\nWARNING: disk space low\nINFO: backup complete',
-          'employees.txt': 'Alice Johnson\nBob Smith\nCharlie Brown\nDiana Prince\nEve Adams\nFrank Castle\nGrace Hopper\nHank Pym',
-          'numbers.txt': '42\n7\n23\n1\n99\n12\n5\n67',
-        },
-      },
-    }),
-    protectedFiles: PROTECTED_FILES,
-    startDir: '/home/analyst',
-    subSteps: [
-      {
-        objective: 'Find all ERROR lines in events.log and count them.',
-        hints: [
-          'First grep for ERROR, then pipe to wc',
-          'Chain commands with |',
-          'Type: cat events.log | grep ERROR | wc',
-        ],
-        winCondition: (cmd, output, fs) => {
-          return cmd.includes('grep') && cmd.includes('ERROR') && cmd.includes('wc') && cmd.match(/\|/g)?.length >= 2;
-        },
-      },
-      {
-        objective: 'Get the first 3 lines of the sorted employees list.',
-        hints: [
-          'Use sort to alphabetize, then head to get first lines',
-          'head -n 3 shows first 3 lines',
-          'Type: cat employees.txt | sort | head -n 3',
-        ],
-        winCondition: (cmd, output, fs) => {
-          return cmd.includes('sort') && cmd.includes('head') && output.includes('Alice');
-        },
-      },
-      {
-        objective: 'Sort the numbers in numbers.txt and show the last 2.',
-        hints: [
-          'Use sort -n for numeric sort, tail -n 2 for last 2 lines',
-          'Chain: sort, then tail',
-          'Type: cat numbers.txt | sort -n | tail -n 2',
-        ],
-        winCondition: (cmd, output, fs) => {
-          return cmd.includes('sort') && cmd.includes('tail') && output.includes('99');
-        },
-      },
-    ],
-  },
-  {
-    id: 12,
-    chapter: 4,
-    title: 'The Evidence Dossier',
-    story: `You've collected enough fragments. Time to compile the evidence.
-
-Pipes and redirects work together — you can process data with pipelines, then save the results.
-
-Build your final dossier. The evidence is damning.`,
-    filesystem: mergeFilesystem(BASE_FILESYSTEM, {
-      home: {
-        analyst: {
-          'suspects.txt': 'Project lead: Dick Cheney\nCFO: George Wallace\nDirector: David Koch\nChief Scientist: Henry Kissinger',
-          'transactions.txt': 'Date: 2023-01-15, Amount: $2.4B, Project: Kill All Humans\nDate: 2023-02-03, Amount: $9.1T, Project: Alpha\nDate: 2023-03-12, Amount: $800K, Project: Puppy Love\nDate: 2023-04-20, Amount: $1.2B, Project: Kill All Humans',
+        eve: {
           evidence: {},
         },
       },
     }),
     protectedFiles: PROTECTED_FILES,
-    startDir: '/home/analyst',
+    startDir: '/home/alice',
+    restrictedDirs: {
+      '/home/mallory/.plans': 'mallory',
+    },
     subSteps: [
       {
-        objective: 'Find all lines in suspects.txt containing "Koch" and save them to evidence/suspect.txt.',
+        objective: 'Move the measurement results to Eve\'s evidence folder.',
         hints: [
-          'Use grep to filter, then > to redirect output',
-          'Syntax: cat file | grep pattern > output',
-          'Type: cat suspects.txt | grep Koch > evidence/suspect.txt',
+          'mv moves files from one location to another',
+          'Syntax: mv source destination',
+          'Try: mv temp_results.txt /home/eve/evidence/',
         ],
         winCondition: (cmd, output, fs) => {
-          return cmd.includes('grep') && cmd.includes('Koch') && cmd.includes('>') && fs.readFile('evidence/suspect.txt')?.includes('Koch');
+          return fs.readFile('/home/eve/evidence/temp_results.txt') !== null && fs.readFile('temp_results.txt') === null;
         },
       },
       {
-        objective: 'Extract all "Kill All Humans" transactions and save to evidence/crimes.txt.',
+        objective: 'Delete the old debug logs — they show you were here.',
         hints: [
-          'grep for the project name, redirect with >',
-          'Type: cat transactions.txt | grep "Kill All Humans" > evidence/crimes.txt',
+          'rm -r removes directories and everything inside',
+          'Try: rm -r old_logs',
+        ],
+        winCondition: (cmd, output, fs) => fs.listDir('old_logs') === null,
+      },
+      {
+        objective: 'Navigate to Mallory\'s home directory to investigate.',
+        hints: [
+          'Use cd with a full path',
+          'Try: cd /home/mallory',
+        ],
+        winCondition: (cmd, output, fs) => fs.cwd === '/home/mallory',
+      },
+    ],
+  },
+
+  // ═══════════════════════════════════════
+  // CHAPTER 4: THE DATA PIPELINE
+  // Commands: pipe (|), wc, sort, grep, head, tail
+  // ═══════════════════════════════════════
+
+  {
+    id: 10,
+    chapter: 4,
+    title: 'Counting the Damage',
+    story: `You're in Mallory's home directory. Suspicious maintenance schedule...
+
+But the real evidence is in the server's data logs. The sensor readings
+in /var/data/ and access logs in /var/log/ should tell the whole story.
+
+Pipes let you chain commands together with |. The output of one command
+becomes the input of the next.`,
+    filesystem: mergeFilesystem(BASE_FILESYSTEM, {}),
+    protectedFiles: PROTECTED_FILES,
+    startDir: '/var/data',
+    restrictedDirs: STANDARD_RESTRICTED,
+    subSteps: [
+      {
+        objective: 'Count how many readings are in the sensor data: `cat sensor_readings.csv | wc`',
+        hints: [
+          'The pipe character | sends output from one command to another',
+          'wc counts lines, words, and characters',
+          'Type: cat sensor_readings.csv | wc',
+        ],
+        winCondition: (cmd, output, fs) => cmd.includes('cat') && cmd.includes('sensor_readings.csv') && cmd.includes('|') && cmd.includes('wc'),
+      },
+      {
+        objective: 'Sort the sensor readings to see them in order: `cat sensor_readings.csv | sort`',
+        hints: [
+          'sort arranges lines in order',
+          'Pipe the cat output into sort',
+          'Type: cat sensor_readings.csv | sort',
+        ],
+        winCondition: (cmd, output, fs) => cmd.includes('cat') && cmd.includes('sensor_readings.csv') && cmd.includes('|') && cmd.includes('sort'),
+      },
+      {
+        objective: 'Search the access log for Mallory\'s entries: `cat /var/log/access.log | grep mallory`',
+        hints: [
+          'grep searches for patterns in text',
+          'Syntax: cat file | grep pattern',
+          'Type: cat /var/log/access.log | grep mallory',
         ],
         winCondition: (cmd, output, fs) => {
-          const crimesFile = fs.readFile('evidence/crimes.txt');
-          return cmd.includes('grep') && cmd.includes('Kill All Humans') && cmd.includes('>') && crimesFile && crimesFile.includes('Kill All Humans');
+          return cmd.includes('grep') && cmd.includes('mallory') && output.includes('mallory');
+        },
+      },
+    ],
+  },
+
+  {
+    id: 11,
+    chapter: 4,
+    title: 'Narrowing the Search',
+    story: `The data is revealing patterns. Mallory's been accessing the lab at odd hours.
+
+And those speed readings — 2.99E8 m/s? That's the speed of light!
+No wonder the timestamps went negative. When you approach c, time dilation
+kicks in. Einstein would not be amused.
+
+Chain multiple pipes to narrow down the evidence.`,
+    filesystem: mergeFilesystem(BASE_FILESYSTEM, {}),
+    protectedFiles: PROTECTED_FILES,
+    startDir: '/var/data',
+    restrictedDirs: STANDARD_RESTRICTED,
+    subSteps: [
+      {
+        objective: 'Count how many readings hit near light-speed: `cat sensor_readings.csv | grep "2.99E" | wc`',
+        hints: [
+          'Chain: cat → grep → wc',
+          'grep filters for lines containing a pattern',
+          'Type: cat sensor_readings.csv | grep "2.99E" | wc',
+        ],
+        winCondition: (cmd, output, fs) => {
+          return cmd.includes('grep') && cmd.includes('2.99E') && cmd.includes('wc') && cmd.match(/\|/g)?.length >= 2;
         },
       },
       {
-        objective: 'Create a sorted list of all suspects and append it to evidence/dossier.txt.',
+        objective: 'Find the earliest access log entries (negative timestamps!): `cat /var/log/access.log | sort | head -n 5`',
         hints: [
-          'cat suspects.txt | sort to get sorted list',
-          'Use >> to append (not >)',
-          'Type: cat suspects.txt | sort >> evidence/dossier.txt',
+          'sort orders lines, head -n 5 shows the first 5',
+          'The negative timestamps should sort to the top',
+          'Type: cat /var/log/access.log | sort | head -n 5',
         ],
         winCondition: (cmd, output, fs) => {
-          const dossier = fs.readFile('evidence/dossier.txt');
+          return cmd.includes('sort') && cmd.includes('head') && output.includes('TEMPORAL ERROR');
+        },
+      },
+      {
+        objective: 'Find the worst speed anomalies: `cat sensor_readings.csv | grep "2.99E" | sort -n | tail -n 3`',
+        hints: [
+          'sort -n sorts numerically, tail -n 3 shows last 3 lines',
+          'Type: cat sensor_readings.csv | grep "2.99E" | sort -n | tail -n 3',
+        ],
+        winCondition: (cmd, output, fs) => {
+          return cmd.includes('sort') && cmd.includes('tail') && output.includes('2.99E');
+        },
+      },
+    ],
+  },
+
+  {
+    id: 12,
+    chapter: 4,
+    title: 'The Evidence Dossier',
+    story: `Time to compile the evidence. Pipes and redirects work together — you can
+process data with pipelines, then save the results to files.
+
+Build your final dossier. The quantum computer — and the integrity
+of spacetime itself — depends on it.`,
+    filesystem: mergeFilesystem(BASE_FILESYSTEM, {
+      home: {
+        eve: {
+          evidence: {},
+        },
+      },
+    }),
+    protectedFiles: PROTECTED_FILES,
+    startDir: '/home/eve',
+    restrictedDirs: STANDARD_RESTRICTED,
+    subSteps: [
+      {
+        objective: 'Extract Mallory\'s access records into evidence: `cat /var/log/access.log | grep mallory > evidence/access_proof.txt`',
+        hints: [
+          'grep filters lines, > redirects to a file',
+          'Type: cat /var/log/access.log | grep mallory > evidence/access_proof.txt',
+        ],
+        winCondition: (cmd, output, fs) => {
+          return cmd.includes('grep') && cmd.includes('mallory') && cmd.includes('>') && fs.readFile('evidence/access_proof.txt')?.includes('mallory');
+        },
+      },
+      {
+        objective: 'Extract the speed anomalies: `cat /var/data/sensor_readings.csv | grep "2.99E" > evidence/speed_anomalies.txt`',
+        hints: [
+          'Same idea — grep for the anomalous speed, redirect to file',
+          'Type: cat /var/data/sensor_readings.csv | grep "2.99E" > evidence/speed_anomalies.txt',
+        ],
+        winCondition: (cmd, output, fs) => {
+          const content = fs.readFile('evidence/speed_anomalies.txt');
+          return cmd.includes('grep') && cmd.includes('2.99E') && cmd.includes('>') && content && content.includes('2.99E');
+        },
+      },
+      {
+        objective: 'Compile the final dossier: combine and sort all evidence into evidence/final_dossier.txt',
+        hints: [
+          'cat can combine multiple files, sort orders them',
+          'Use >> to append to the dossier',
+          'Type: cat evidence/access_proof.txt evidence/speed_anomalies.txt | sort >> evidence/final_dossier.txt',
+        ],
+        winCondition: (cmd, output, fs) => {
+          const dossier = fs.readFile('evidence/final_dossier.txt');
           return cmd.includes('sort') && cmd.includes('>>') && cmd.includes('dossier.txt') && dossier && dossier.length > 0;
         },
       },
