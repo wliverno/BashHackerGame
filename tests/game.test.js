@@ -285,9 +285,8 @@ describe('game.runCommand', () => {
     game.runCommand('chmod +x measure.sh');
     game.runCommand('./measure.sh');
 
-    // Level 9 — Covering Tracks
+    // Level 9 — Covering Tracks (starts in /home/alice/research, temp_results.txt is here)
     expect(game.currentLevel).toBe(8);
-    game.runCommand('cd /home/alice');
     game.runCommand('mv temp_results.txt /home/eve/');
     game.runCommand('quit');
     game.runCommand('rm /home/alice/.bash_history');

@@ -518,8 +518,10 @@ rm removes files permanently. No traces.`,
     filesystem: mergeFilesystem(BASE_FILESYSTEM, {
       home: {
         alice: {
-          research: ALICE_RESEARCH_CONTENT,
-          'temp_results.txt': 'Measurement results: entanglement verified\nBell inequality: violated (S = 2.73 > 2)\nQuantum state fidelity: 99.7%\nTimestamp: 2024-01-16T14:30:00',
+          research: {
+            ...ALICE_RESEARCH_CONTENT,
+            'temp_results.txt': 'Measurement results: entanglement verified\nBell inequality: violated (S = 2.73 > 2)\nQuantum state fidelity: 99.7%\nTimestamp: 2024-01-16T14:30:00',
+          },
           '.bash_history': 'ls\ncat research/README.txt\n./research/measure.sh\ncat research/alice.qubit\n',
         },
       },
@@ -539,7 +541,7 @@ rm removes files permanently. No traces.`,
         ],
         winCondition: (cmd, output, fs) => {
           return fs.readFile('/home/eve/temp_results.txt') !== null &&
-                 fs.readFile('/home/alice/temp_results.txt') === null;
+                 fs.readFile('/home/alice/research/temp_results.txt') === null;
         },
       },
       {

@@ -179,12 +179,29 @@ describe('levels', () => {
     expect(level.subSteps[3].winCondition('./measure.sh', 'Permission denied', {})).toBe(false);
   });
 
+  test('level 9 substep 0: false if source file still exists in research', () => {
+    const cond = levels[8].subSteps[0].winCondition;
+    // file moved correctly: destination exists, source at /home/alice/research/temp_results.txt is gone
+    const moved = { readFile: (p) => p === '/home/eve/temp_results.txt' ? 'data' : null };
+    expect(cond('mv', '', moved)).toBe(true);
+    // file NOT moved: destination exists but source still at /home/alice/research/temp_results.txt
+    // (file is not at old /home/alice/temp_results.txt but is still in /home/alice/research/)
+    const destExistsSourceInResearch = {
+      readFile: (p) => {
+        if (p === '/home/eve/temp_results.txt') return 'data';
+        if (p === '/home/alice/research/temp_results.txt') return 'data';
+        return null;
+      }
+    };
+    expect(cond('mv', '', destExistsSourceInResearch)).toBe(false);
+  });
+
   test('level 9 win conditions check mv, quit, and rm bash_history', () => {
     const level = levels[8];
     expect(level.subSteps.length).toBe(3);
 
     // substep 0: mv temp_results.txt to /home/eve/
-    // source at /home/alice/temp_results.txt is gone (null), destination at /home/eve/ exists
+    // source at /home/alice/research/temp_results.txt is gone (null), destination at /home/eve/ exists
     const moved = { readFile: (p) => p === '/home/eve/temp_results.txt' ? 'data' : null };
     const notMoved = { readFile: () => null };
     expect(level.subSteps[0].winCondition('mv temp_results.txt /home/eve/', '', moved)).toBe(true);
