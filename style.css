@@ -30,3 +30,67 @@ html, body {
 .terminal .cmd .cursor.blink {
   animation: blink 1s infinite;
 }
+
+/* ── Mobile input bar ── */
+
+body.is-mobile #terminal {
+  height: calc(100% - 48px);
+}
+
+body.is-mobile .terminal .cmd {
+  display: none;
+}
+
+#mobile-input-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  background: #111;
+  border-top: 1px solid #333;
+  padding: 0 6px;
+  z-index: 1000;
+}
+
+#mobile-prompt {
+  color: #0f0;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  white-space: nowrap;
+  padding-right: 4px;
+  flex-shrink: 0;
+}
+
+#mobile-input {
+  flex: 1;
+  background: #0a0a0a;
+  color: #0f0;
+  border: 1px solid #333;
+  border-radius: 4px;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 16px;          /* ≥16px prevents iOS zoom on focus */
+  padding: 6px 8px;
+  outline: none;
+  min-width: 0;
+}
+
+#mobile-input:focus {
+  border-color: #0f0;
+}
+
+#mobile-send {
+  background: #0f0;
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  font-size: 20px;
+  font-weight: bold;
+  width: 40px;
+  height: 36px;
+  margin-left: 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
