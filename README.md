@@ -1,10 +1,6 @@
 # BashTreasureHunt
 
-A browser-based bash learning game. No installation required - just open and play!
-
-## For Players
-
-Open `index.html` in your browser and start learning bash commands through interactive missions.
+A browser-based bash learning game that teaches bash commands through an interactive quantum lab espionage story.
 
 ## For Developers
 
@@ -38,8 +34,8 @@ npm test
 # Run specific test file
 npm test -- filesystem.test.js
 
-# Open game in browser
-open index.html
+# Play the game (needs a local server because of ES modules)
+npx serve .
 ```
 
 ### Adding Content
@@ -68,13 +64,24 @@ open index.html
 - Jest (testing)
 - No build step - pure static files
 
+### Running Locally
+
+```bash
+# Play the game (ES modules require a local server)
+npx serve .
+# Then open http://localhost:3000 in your browser
+
+# Run the test suite
+npm install
+npm test
+```
+
 ### Current Progress
 
-- ✅ Chapter 1: Navigation (ls, cd, pwd)
-- ✅ Chapter 2: File I/O (cat, echo, redirects)
-- ✅ Chapter 3: File Operations (mkdir, cp, mv, rm, chmod)
-- ✅ Chapter 4: Pipes & Text Processing (wc, sort, grep, head, tail)
-- 📋 Chapters 5-7: find, sed, advanced scripting
+- Chapter 1: Logging In (ls, cd, pwd, cat)
+- Chapter 2: Reading the Lab (cat, echo, >, >>)
+- Chapter 3: Inside the Lab (mkdir, cp, mv, rm, chmod, ssh)
+- Chapter 4: The Data Pipeline (|, wc, sort, grep, head, tail)
 
 ## License
 

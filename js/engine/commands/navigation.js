@@ -26,6 +26,20 @@ export const commands = {
     const outputs = [];
 
     for (const path of paths) {
+      // Check restricted directory access
+      if (fs.restrictedDirs) {
+        const absPath = fs.getAbsolutePath(path);
+        for (const [restricted, requiredUser] of Object.entries(fs.restrictedDirs)) {
+          if ((absPath === restricted || absPath.startsWith(restricted + '/')) && fs.currentUser !== requiredUser) {
+            return {
+              stdout: '',
+              stderr: `ls: cannot open directory '${path}': Permission denied`,
+              exitCode: 1,
+            };
+          }
+        }
+      }
+
       const node = fs.resolvePath(path);
 
       if (!node) {

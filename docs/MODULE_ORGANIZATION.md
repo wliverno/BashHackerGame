@@ -51,7 +51,7 @@ Win conditions are functions: `(cmd, output, fs) => boolean`
 Use helpers from `win-conditions.js` for common patterns:
 - `winConditions.exactCommand('pwd')`
 - `winConditions.fileExists('/path/to/file')`
-- `winConditions.changedToDir('/home/analyst/internal')`
+- `winConditions.changedToDir('/home/eve')`
 
 ### Changing Story/Objectives
 **Edit:** `js/gameplay/levels.js`

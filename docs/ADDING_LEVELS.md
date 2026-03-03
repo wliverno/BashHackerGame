@@ -13,12 +13,12 @@
 ```javascript
 {
   id: 10,                    // Unique sequential number
-  chapter: 4,                // Which chapter (1-7)
+  chapter: 4,                // Which chapter (1-4)
   title: 'Basic Pipes',      // Short title shown in level header
   story: `Multi-line story text here...`, // Intro narrative
   filesystem: {              // Starting filesystem for this level
     home: {
-      analyst: {
+      eve: {
         'data.txt': 'file contents here',
         subfolder: {
           'another.txt': 'more content',
@@ -26,7 +26,7 @@
       },
     },
   },
-  startDir: '/home/analyst', // Where player starts
+  startDir: '/home/eve', // Where player starts on restart (cwd carries over on level advance)
   subSteps: [                // Array of 3-4 sub-objectives
     {
       objective: 'Task description shown to player',
@@ -62,7 +62,7 @@ winCondition: winConditions.commandStartsWith('ls')
 winCondition: winConditions.commandIncludes('cat', 'welcome.txt')
 
 // Check directory changed
-winCondition: winConditions.changedToDir('/home/analyst/internal')
+winCondition: winConditions.changedToDir('/home/eve')
 
 // Check file exists
 winCondition: winConditions.fileExists('/tmp/output.txt')
@@ -90,8 +90,8 @@ winCondition: (cmd, output, fs) => {
   // fs = filesystem object (check state with fs.readFile(), fs.cwd, etc)
 
   // Example: Check if user created specific directory structure
-  const hasDir = fs.resolvePath('/home/analyst/evidence');
-  const hasFile = fs.readFile('/home/analyst/evidence/data.txt');
+  const hasDir = fs.resolvePath('/home/eve/evidence');
+  const hasFile = fs.readFile('/home/eve/evidence/data.txt');
   return hasDir && hasDir.type === 'dir' && hasFile !== null;
 }
 ```
@@ -105,7 +105,7 @@ Filesystem is a nested object where:
 ```javascript
 filesystem: {
   home: {
-    analyst: {
+    eve: {
       'simple-file.txt': 'This is a file',
       'another.txt': 'More content',
       documents: {
@@ -194,7 +194,7 @@ Reading raw logs is like drinking from a firehose. You need to filter them.
 Time to learn the power of pipes: feeding one command's output into another.`,
   filesystem: {
     home: {
-      analyst: {
+      eve: {
         'users.txt': 'alice\nbob\ncharlie\nadmin\nroot\nguest',
         logs: {
           'access.log': '192.168.1.1 GET /\n10.0.0.5 POST /api\n192.168.1.1 GET /login',
@@ -202,7 +202,7 @@ Time to learn the power of pipes: feeding one command's output into another.`,
       },
     },
   },
-  startDir: '/home/analyst',
+  startDir: '/home/eve',
   subSteps: [
     {
       objective: 'Use `cat users.txt` to display the user list.',

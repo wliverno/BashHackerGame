@@ -37,10 +37,10 @@ export function printWinScreen(term) {
   term.echo('[[;#0f0;]      INVESTIGATION COMPLETE!           ]');
   term.echo('[[;#0f0;]═══════════════════════════════════════]');
   term.echo('');
-  term.echo("[[;#0ff;]The evidence is irrefutable. Mallory's sabotage of the quantum computer has been fully documented.]");
-  term.echo('[[;#0ff;]The speed-of-light anomalies, the tampered sensor readings, the suspicious access logs — it all points to one person.]');
+  term.echo("[[;#0ff;]You came here to snoop. You stayed to save the lab.]");
+  term.echo("[[;#0ff;]Mallory's sabotage is fully documented — the speed-of-light anomalies, the tampered readings, all of it.]");
   term.echo('');
-  term.echo('[[;#ff0;]Congratulations, Eve. The quantum lab is safe... for now.]');
+  term.echo('[[;#ff0;]Not bad for an intern who was just supposed to refill the liquid nitrogen.]');
   term.echo('');
 }
 
