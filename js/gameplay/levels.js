@@ -194,7 +194,8 @@ Her directory has some interesting subdirectories — a research folder,
 notes, even SSH keys lying around. Some areas are restricted though.
 
 You can also use cd with full paths, like cd /home/eve, to jump
-directly to a location.`,
+directly to a location.
+Tip: press Tab to autocomplete file and directory names — great for long paths.`,
     filesystem: mergeFilesystem(BASE_FILESYSTEM, {}),
     protectedFiles: PROTECTED_FILES,
     startDir: '/home/alice',
@@ -680,7 +681,8 @@ You came here to snoop, but this is real sabotage. Time to dig deeper.`,
 Someone needs to put this evidence together, and it might as well be you.
 
 Pipes and redirects work together — process data with pipelines,
-then save the results to files. Build a real dossier.`,
+then save the results to files. Build a real dossier.
+Your evidence folder is back home. You know how to get there.`,
     filesystem: mergeFilesystem(BASE_FILESYSTEM, {
       home: {
         mallory: { '.plans': MALLORY_PLANS_CONTENT },
