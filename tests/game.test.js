@@ -169,6 +169,34 @@ describe('createGame', () => {
     const game = createGame({ startUser: 'alice' });
     expect(game.currentUser).toBe('alice');
   });
+
+  test('goto N jumps to level N using startDir', () => {
+    const game = createGame();
+    game.runCommand('cd ..');   // navigate away from startDir
+    expect(game.fs.cwd).toBe('/home');
+
+    const result = game.runCommand('goto 5');
+    expect(result.gotoLevel).toBe(true);
+    expect(game.currentLevel).toBe(4);        // 0-indexed
+    expect(game.currentSubStep).toBe(0);
+    expect(game.fs.cwd).toBe(levels[4].startDir); // uses startDir, not inherited cwd
+    expect(result.story).toBeDefined();
+    expect(result.levelTitle).toBeDefined();
+    expect(result.newObjective).toBeDefined();
+  });
+
+  test('goto with invalid level 0 returns error', () => {
+    const game = createGame();
+    const result = game.runCommand('goto 0');
+    expect(result.exitCode).toBe(1);
+    expect(game.currentLevel).toBe(0);
+  });
+
+  test('goto with out-of-range level returns error', () => {
+    const game = createGame();
+    const result = game.runCommand('goto 999');
+    expect(result.exitCode).toBe(1);
+  });
 });
 
 describe('game.runCommand', () => {

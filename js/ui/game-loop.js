@@ -96,6 +96,27 @@ export function createGame({ startLevel = 0, startUser = 'eve' } = {}) {
         };
       }
 
+      const gotoMatch = input.trim().match(/^goto\s+(\d+)$/);
+      if (gotoMatch) {
+        const n = parseInt(gotoMatch[1]);
+        if (isNaN(n) || n < 1 || n > levels.length) {
+          return { output: `goto: valid levels are 1\u2013${levels.length}`, exitCode: 1 };
+        }
+        currentLevel = n - 1;
+        currentSubStep = 0;
+        hintIndex = 0;
+        currentUser = 'eve';
+        fs = loadLevel(currentLevel); // no preservedCwd — uses startDir for clean state
+        return {
+          output: '',
+          exitCode: 0,
+          gotoLevel: true,
+          story: this.getStory(),
+          levelTitle: this.getLevelTitle(),
+          newObjective: this.getObjective(),
+        };
+      }
+
       const result = executePipeline(input, fs);
 
       // Handle user switching (e.g., from ssh command)

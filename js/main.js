@@ -9,9 +9,10 @@ import {
   getCompletions,
 } from './ui/terminal.js';
 
-const game = createGame();
-
 $(function() {
+  const savedLevel = parseInt(localStorage.getItem('savedLevel') || '0');
+  const savedUser = localStorage.getItem('savedUser') || 'eve';
+  const game = createGame({ startLevel: savedLevel, startUser: savedUser });
   const term = $('#terminal').terminal(function(command) {
     if (!command.trim()) return;
 
@@ -77,10 +78,21 @@ $(function() {
       }
 
       if (result.newLevel) {
+        localStorage.setItem('savedLevel', game.currentLevel);
+        localStorage.setItem('savedUser', game.currentUser);
         printLevelHeader(this, game.currentLevel, result.levelTitle);
         printStory(this, result.story);
       }
 
+      printObjective(this, result.newObjective);
+    }
+
+    if (result.gotoLevel) {
+      localStorage.setItem('savedLevel', game.currentLevel);
+      localStorage.setItem('savedUser', 'eve');
+      this.clear();
+      printLevelHeader(this, game.currentLevel, result.levelTitle);
+      printStory(this, result.story);
       printObjective(this, result.newObjective);
     }
   }, {
