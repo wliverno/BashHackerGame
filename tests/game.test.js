@@ -146,6 +146,29 @@ describe('createGame', () => {
     const game = createGame();
     expect(game.getStory()).toBe(levels[0].story);
   });
+
+  test('carries cwd from previous level on advance', () => {
+    const game2 = createGame();
+    game2.runCommand('pwd');           // substep 0 of level 1
+    game2.runCommand('ls');            // substep 1 of level 1
+    game2.runCommand('cd ..');         // navigate to /home — not a win condition
+    expect(game2.fs.cwd).toBe('/home');
+    game2.runCommand('cat welcome.txt');  // substep 2 — advances to level 2
+    // After level advance, cwd should be inherited (/home), NOT reset to /home/eve
+    expect(game2.fs.cwd).toBe('/home');
+    expect(game2.currentLevel).toBe(1);
+  });
+
+  test('createGame respects startLevel option', () => {
+    const game = createGame({ startLevel: 4 });
+    expect(game.currentLevel).toBe(4);
+    expect(game.fs.cwd).toBe(levels[4].startDir);
+  });
+
+  test('createGame respects startUser option', () => {
+    const game = createGame({ startUser: 'alice' });
+    expect(game.currentUser).toBe('alice');
+  });
 });
 
 describe('game.runCommand', () => {
@@ -220,6 +243,7 @@ describe('game.runCommand', () => {
 
     // Level 7 — Copying the Keys
     expect(game.currentLevel).toBe(6);
+    game.runCommand('cd /home/eve');
     game.runCommand('mkdir evidence');
     game.runCommand('mkdir .ssh');
     game.runCommand('cp /home/alice/.ssh/* .ssh/');
@@ -235,6 +259,7 @@ describe('game.runCommand', () => {
 
     // Level 9 — Covering Tracks
     expect(game.currentLevel).toBe(8);
+    game.runCommand('cd /home/alice');
     game.runCommand('mv temp_results.txt /home/eve/');
     game.runCommand('quit');
     game.runCommand('rm /home/alice/.bash_history');
@@ -248,12 +273,14 @@ describe('game.runCommand', () => {
 
     // Level 11 — Narrowing the Search
     expect(game.currentLevel).toBe(10);
+    game.runCommand('cd /var/data');
     game.runCommand('cat sensor_readings.csv | grep "2.99E" | wc');
     game.runCommand('cat /var/log/access.log | sort | head -n 5');
     game.runCommand('cat sensor_readings.csv | grep "2.99E" | sort -n | tail -n 3');
 
     // Level 12 — The Evidence Dossier
     expect(game.currentLevel).toBe(11);
+    game.runCommand('cd /home/eve');
     game.runCommand('grep mallory /var/log/access.log > evidence/access_proof.txt');
     game.runCommand('grep "2.99E" /var/data/sensor_readings.csv > evidence/speed_anomalies.txt');
 

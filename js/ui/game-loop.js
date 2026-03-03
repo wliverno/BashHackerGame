@@ -16,26 +16,26 @@ function snapshotProtectedFiles(fs, protectedFiles) {
   return (protectedFiles || []).filter(f => fs.readFile(f) !== null);
 }
 
-export function createGame() {
-  let currentLevel = 0;
+export function createGame({ startLevel = 0, startUser = 'eve' } = {}) {
+  let currentLevel = startLevel;
   let currentSubStep = 0;
   let hintIndex = 0;
   let won = false;
-  let currentUser = 'eve';
+  let currentUser = startUser;
 
   let activeProtectedFiles = [];
 
-  const loadLevel = (levelIndex) => {
+  const loadLevel = (levelIndex, preservedCwd = null) => {
     const level = levels[levelIndex];
     const fs = createFilesystem(level.filesystem);
-    fs.cwd = level.startDir;
+    fs.cwd = preservedCwd ?? level.startDir;
     fs.restrictedDirs = level.restrictedDirs || {};
     fs.currentUser = currentUser;
     activeProtectedFiles = snapshotProtectedFiles(fs, level.protectedFiles);
     return fs;
   };
 
-  let fs = loadLevel(0);
+  let fs = loadLevel(startLevel);
 
   const game = {
     get currentLevel() { return currentLevel; },
@@ -132,9 +132,10 @@ export function createGame() {
           currentSubStep++;
           result.newObjective = this.getObjective();
         } else if (currentLevel < levels.length - 1) {
+          const prevCwd = fs.cwd;
           currentLevel++;
           currentSubStep = 0;
-          fs = loadLevel(currentLevel);
+          fs = loadLevel(currentLevel, prevCwd);
           if (levels[currentLevel].chapter !== levels[currentLevel - 1].chapter) {
             result.chapterComplete = true;
             result.completedChapter = levels[currentLevel - 1].chapter;
