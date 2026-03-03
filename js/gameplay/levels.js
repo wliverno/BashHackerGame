@@ -630,7 +630,8 @@ And those speed readings — 2.99E8 m/s? That's the speed of light.
 No wonder the timestamps went negative. When you approach c, time dilation
 kicks in. Einstein would not be amused.
 
-You came here to snoop, but this is real sabotage. Time to dig deeper.`,
+Two more tools: head -n N shows the first N lines. tail -n N shows the last N.
+After a sort, that lets you isolate the extreme values.`,
     filesystem: mergeFilesystem(BASE_FILESYSTEM, {
       home: { mallory: { '.plans': MALLORY_PLANS_CONTENT } },
     }),
@@ -639,32 +640,33 @@ You came here to snoop, but this is real sabotage. Time to dig deeper.`,
     restrictedDirs: STANDARD_RESTRICTED,
     subSteps: [
       {
-        objective: 'Count how many readings hit near light-speed: `cat sensor_readings.csv | grep "2.99E" | wc`',
+        objective: 'How many sensor readings hit near light-speed? Filter sensor_readings.csv for lines containing "2.99E", then count them.',
         hints: [
-          'Chain: cat → grep → wc',
-          'grep filters for lines containing a pattern',
-          'Type: cat sensor_readings.csv | grep "2.99E" | wc',
+          'You can chain three commands: cat → grep → wc',
+          'grep "2.99E" filters for lines with that pattern, wc counts the result',
+          'Try: cat sensor_readings.csv | grep "2.99E" | wc',
         ],
         winCondition: (cmd, output, fs) => {
           return cmd.includes('grep') && cmd.includes('2.99E') && cmd.includes('wc') && cmd.match(/\|/g)?.length >= 2;
         },
       },
       {
-        objective: 'Find the earliest access log entries (negative timestamps!): `cat /var/log/access.log | sort | head -n 5`',
+        objective: 'Those negative timestamps are suspicious. Sort the access log and show only the first 5 lines — what appears at the top?',
         hints: [
-          'sort orders lines, head -n 5 shows the first 5',
-          'The negative timestamps should sort to the top',
-          'Type: cat /var/log/access.log | sort | head -n 5',
+          'sort puts lines in order — negative timestamps will sort before positive ones',
+          'head -n 5 shows only the first 5 lines of its input',
+          'Try: cat /var/log/access.log | sort | head -n 5',
         ],
         winCondition: (cmd, output, fs) => {
           return cmd.includes('sort') && cmd.includes('head') && output.includes('TEMPORAL ERROR');
         },
       },
       {
-        objective: 'Find the worst speed anomalies: `cat sensor_readings.csv | grep "2.99E" | sort -n | tail -n 3`',
+        objective: 'Which anomaly readings were the highest? Filter for "2.99E" entries, sort them numerically, and show only the last 3.',
         hints: [
-          'sort -n sorts numerically, tail -n 3 shows last 3 lines',
-          'Type: cat sensor_readings.csv | grep "2.99E" | sort -n | tail -n 3',
+          'sort -n sorts numerically instead of alphabetically — important for numbers',
+          'tail -n 3 shows the last 3 lines, which will be the highest after a numeric sort',
+          'Try: cat sensor_readings.csv | grep "2.99E" | sort -n | tail -n 3',
         ],
         winCondition: (cmd, output, fs) => {
           return cmd.includes('sort') && cmd.includes('tail') && output.includes('2.99E');
@@ -680,8 +682,9 @@ You came here to snoop, but this is real sabotage. Time to dig deeper.`,
     story: `OK. You started out just being nosy, but Mallory is genuinely dangerous.
 Someone needs to put this evidence together, and it might as well be you.
 
-Pipes and redirects work together — process data with pipelines,
-then save the results to files. Build a real dossier.
+You already know grep filters lines. You already know > saves output to a file.
+Combine them: grep pattern /path/to/file > output.txt searches and saves in one step.
+
 Your evidence folder is back home. You know how to get there.`,
     filesystem: mergeFilesystem(BASE_FILESYSTEM, {
       home: {
@@ -696,11 +699,11 @@ Your evidence folder is back home. You know how to get there.`,
     restrictedDirs: STANDARD_RESTRICTED,
     subSteps: [
       {
-        objective: 'Extract all of Mallory\'s access log entries into evidence/access_proof.txt.',
+        objective: 'Search the access log for lines mentioning mallory and save the results to evidence/access_proof.txt.',
         hints: [
-          'You need to find lines mentioning mallory in the access log',
-          'grep searches for patterns — you can grep a file directly or pipe into it',
-          'Redirect output with > to save to a file',
+          'grep can search a file directly: grep pattern /path/to/file',
+          'Add > to redirect the output into a file instead of printing it',
+          'The access log is at /var/log/access.log',
           'Try: grep mallory /var/log/access.log > evidence/access_proof.txt',
         ],
         winCondition: (cmd, output, fs) => {
@@ -711,10 +714,10 @@ Your evidence folder is back home. You know how to get there.`,
         },
       },
       {
-        objective: 'Extract all speed anomaly readings into evidence/speed_anomalies.txt.',
+        objective: 'Save the near-light-speed sensor readings to evidence/speed_anomalies.txt. The anomalous readings all contain "2.99E".',
         hints: [
-          'You need to find the near-light-speed readings from the sensor data',
-          'The anomalous readings contain "2.99E"',
+          'Same pattern as before: grep the sensor data for the anomaly signature',
+          'The sensor data is at /var/data/sensor_readings.csv',
           'Try: grep "2.99E" /var/data/sensor_readings.csv > evidence/speed_anomalies.txt',
         ],
         winCondition: (cmd, output, fs) => {
