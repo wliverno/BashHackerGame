@@ -54,44 +54,41 @@ export function printChapterComplete(term, chapter) {
   term.echo('');
 }
 
-export function getCompletions(str, fs) {
-  const endsWithSpace = str.endsWith(' ');
-  const parts = str.trim().split(/\s+/);
+// word      = the current word being completed (from wordAutocomplete: true)
+// fullCmd   = the full command line (from term.get_command())
+export function getCompletions(word, fullCmd, fs) {
+  const parts = fullCmd.trim().split(/\s+/);
+  const isFirstWord = parts.length <= 1 && !fullCmd.includes(' ');
 
-  // Typing the command name itself
-  if (parts.length <= 1 && !endsWithSpace) {
-    const partial = parts[0] || '';
-    return COMMAND_NAMES.filter(c => c.startsWith(partial));
+  // Completing the command name itself
+  if (isFirstWord) {
+    return COMMAND_NAMES.filter(c => c.startsWith(word));
   }
 
   // After a command — complete file/dir names
   const cmd = parts[0];
-  const partial = endsWithSpace ? '' : parts[parts.length - 1];
-  const prefix = endsWithSpace ? str : parts.slice(0, -1).join(' ') + ' ';
 
-  // Parse the partial to extract directory path and filename prefix
-  const lastSlash = partial.lastIndexOf('/');
+  // Parse the word to extract directory path and filename prefix
+  const lastSlash = word.lastIndexOf('/');
   let dir = '.';
-  let filePrefix = partial;
+  let filePrefix = word;
   let pathPrefix = '';
 
   if (lastSlash !== -1) {
-    pathPrefix = partial.substring(0, lastSlash + 1);
-    filePrefix = partial.substring(lastSlash + 1);
+    pathPrefix = word.substring(0, lastSlash + 1);
+    filePrefix = word.substring(lastSlash + 1);
     dir = pathPrefix || '/';
   }
 
   const entries = fs.listDir(dir) || [];
 
   if (cmd === 'cd') {
-    const dirs = entries.filter(e => e.type === 'dir').map(e => e.name);
-    const completions = ['..', ...dirs]
-      .filter(n => n.startsWith(filePrefix));
-
-    return completions.map(n => prefix + pathPrefix + n);
+    return entries
+      .filter(e => e.type === 'dir' && e.name.startsWith(filePrefix))
+      .map(e => pathPrefix + e.name + '/');
   }
 
-  return entries.map(e => e.name)
-    .filter(n => n.startsWith(filePrefix))
-    .map(n => prefix + pathPrefix + n);
+  return entries
+    .filter(e => e.name.startsWith(filePrefix))
+    .map(e => pathPrefix + e.name + (e.type === 'dir' ? '/' : ''));
 }

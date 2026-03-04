@@ -437,71 +437,73 @@ describe('getCompletions', () => {
     fs.cwd = '/home/eve';
   });
 
+  // getCompletions(word, fullCmd, fs) — word is the current word being completed,
+  // fullCmd is the full command line for context
+
   test('completes command names from empty input', () => {
-    expect(getCompletions('', fs)).toContain('ls');
-    expect(getCompletions('', fs)).toContain('cd');
+    expect(getCompletions('', '', fs)).toContain('ls');
+    expect(getCompletions('', '', fs)).toContain('cd');
   });
 
   test('completes partial command name', () => {
-    expect(getCompletions('c', fs)).toContain('cat');
-    expect(getCompletions('c', fs)).toContain('cd');
-    expect(getCompletions('c', fs)).toContain('clear');
-    expect(getCompletions('c', fs)).not.toContain('ls');
+    expect(getCompletions('c', 'c', fs)).toContain('cat');
+    expect(getCompletions('c', 'c', fs)).toContain('cd');
+    expect(getCompletions('c', 'c', fs)).toContain('clear');
+    expect(getCompletions('c', 'c', fs)).not.toContain('ls');
   });
 
   test('completes file names after command with trailing space', () => {
-    const results = getCompletions('cat ', fs);
-    expect(results).toContain('cat welcome.txt');
-    expect(results).toContain('cat readme.md');
-    expect(results).toContain('cat documents');
+    const results = getCompletions('', 'cat ', fs);
+    expect(results).toContain('welcome.txt');
+    expect(results).toContain('readme.md');
+    expect(results).toContain('documents/');
   });
 
   test('completes file names matching partial', () => {
-    const results = getCompletions('cat w', fs);
-    expect(results).toEqual(['cat welcome.txt']);
+    const results = getCompletions('w', 'cat w', fs);
+    expect(results).toEqual(['welcome.txt']);
   });
 
   test('cd only completes directories', () => {
-    const results = getCompletions('cd ', fs);
-    expect(results).toContain('cd documents');
-    expect(results).toContain('cd projects');
-    expect(results).toContain('cd ..');
-    expect(results).not.toContain('cd welcome.txt');
-    expect(results).not.toContain('cd readme.md');
+    const results = getCompletions('', 'cd ', fs);
+    expect(results).toContain('documents/');
+    expect(results).toContain('projects/');
+    expect(results).not.toContain('welcome.txt');
+    expect(results).not.toContain('readme.md');
   });
 
   test('cd completes partial directory name', () => {
-    const results = getCompletions('cd d', fs);
-    expect(results).toEqual(['cd documents']);
+    const results = getCompletions('d', 'cd d', fs);
+    expect(results).toEqual(['documents/']);
   });
 
   test('ls completes all entries', () => {
-    const results = getCompletions('ls ', fs);
-    expect(results).toContain('ls welcome.txt');
-    expect(results).toContain('ls documents');
+    const results = getCompletions('', 'ls ', fs);
+    expect(results).toContain('welcome.txt');
+    expect(results).toContain('documents/');
   });
 
   test('completes files in subdirectories', () => {
     fs.writeFile('documents/report.txt', 'content');
     fs.writeFile('documents/memo.txt', 'content');
-    const results = getCompletions('cat documents/', fs);
-    expect(results).toContain('cat documents/report.txt');
-    expect(results).toContain('cat documents/memo.txt');
+    const results = getCompletions('documents/', 'cat documents/', fs);
+    expect(results).toContain('documents/report.txt');
+    expect(results).toContain('documents/memo.txt');
   });
 
   test('completes partial filenames in subdirectories', () => {
     fs.writeFile('documents/report.txt', 'content');
     fs.writeFile('documents/memo.txt', 'content');
-    const results = getCompletions('cat documents/r', fs);
-    expect(results).toEqual(['cat documents/report.txt']);
+    const results = getCompletions('documents/r', 'cat documents/r', fs);
+    expect(results).toEqual(['documents/report.txt']);
   });
 
   test('cd completes subdirectories', () => {
     fs.createDir('documents/archive');
     fs.createDir('documents/drafts');
-    const results = getCompletions('cd documents/', fs);
-    expect(results).toContain('cd documents/..');
-    expect(results).toContain('cd documents/archive');
-    expect(results).toContain('cd documents/drafts');
+    const results = getCompletions('documents/', 'cd documents/', fs);
+    expect(results).toContain('documents/archive/');
+    expect(results).toContain('documents/drafts/');
+    expect(results).not.toContain('documents/../');
   });
 });

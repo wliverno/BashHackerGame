@@ -34,6 +34,9 @@ export const commands = {
   },
 
   quit(args, stdin, fs) {
+    if (fs.currentUser === 'eve') {
+      return { stdout: '', stderr: 'quit: not logged into a remote session', exitCode: 1 };
+    }
     return {
       stdout: 'Connection to megafirm-qlab closed.',
       stderr: '',
@@ -41,5 +44,13 @@ export const commands = {
       switchUser: 'eve',
       switchCwd: '/home/eve',
     };
+  },
+
+  exit(args, stdin, fs) {
+    return commands.quit(args, stdin, fs);
+  },
+
+  logout(args, stdin, fs) {
+    return commands.quit(args, stdin, fs);
   },
 };

@@ -26,12 +26,17 @@ export function createFilesystem(tree = {}, homePath = '/home/eve') {
     _permissions: new Map(),
     homePath,
 
+    _expandTilde(path) {
+      if (path === '~') return this.homePath;
+      if (path.startsWith('~/')) return this.homePath + path.slice(1);
+      // ~username or ~username/...
+      const m = path.match(/^~(\w+)(\/.*)?$/);
+      if (m) return '/home/' + m[1] + (m[2] || '');
+      return path;
+    },
+
     resolvePath(path) {
-      if (path === '~') {
-        path = this.homePath;
-      } else if (path.startsWith('~/')) {
-        path = this.homePath + path.slice(1);
-      }
+      path = this._expandTilde(path);
 
       let parts;
       if (path.startsWith('/')) {
@@ -62,11 +67,7 @@ export function createFilesystem(tree = {}, homePath = '/home/eve') {
     },
 
     getAbsolutePath(path) {
-      if (path === '~') {
-        path = this.homePath;
-      } else if (path.startsWith('~/')) {
-        path = this.homePath + path.slice(1);
-      }
+      path = this._expandTilde(path);
 
       let parts;
       if (path.startsWith('/')) {

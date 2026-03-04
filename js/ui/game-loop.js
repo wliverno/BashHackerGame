@@ -27,7 +27,7 @@ export function createGame({ startLevel = 0, startUser = 'eve' } = {}) {
 
   const loadLevel = (levelIndex, preservedCwd = null) => {
     const level = levels[levelIndex];
-    const fs = createFilesystem(level.filesystem);
+    const fs = createFilesystem(level.filesystem, '/home/' + currentUser);
     fs.cwd = preservedCwd ?? level.startDir;
     fs.restrictedDirs = level.restrictedDirs || {};
     fs.currentUser = currentUser;
@@ -105,7 +105,7 @@ export function createGame({ startLevel = 0, startUser = 'eve' } = {}) {
         currentLevel = n - 1;
         currentSubStep = 0;
         hintIndex = 0;
-        currentUser = 'eve';
+        currentUser = levels[currentLevel].startUser || 'eve';
         fs = loadLevel(currentLevel); // no preservedCwd — uses startDir for clean state
         return {
           output: '',

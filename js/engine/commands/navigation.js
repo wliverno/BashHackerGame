@@ -12,9 +12,10 @@ export const commands = {
     const paths = [];
 
     for (const arg of args) {
-      if (arg === '-a' || arg === '-la' || arg === '-al') {
-        showHidden = true;
-      } else if (!arg.startsWith('-')) {
+      if (arg.startsWith('-')) {
+        const chars = arg.slice(1);
+        if (chars.includes('a')) showHidden = true;
+      } else {
         paths.push(arg);
       }
     }

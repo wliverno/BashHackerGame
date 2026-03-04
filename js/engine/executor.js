@@ -1,6 +1,57 @@
 import { parse } from './parser.js';
 import { commands } from './commands/index.js';
 
+// Flags each command actually handles. '*' means flag takes a value arg.
+const SUPPORTED_FLAGS = {
+  ls:    { a: true },
+  cp:    { r: true },
+  rm:    { r: true, f: true },
+  grep:  { i: true, v: true, o: true },
+  sort:  { r: true, n: true },
+  head:  { n: '*' },
+  tail:  { n: '*' },
+  // commands with no flag support:
+  cat: {}, echo: {}, mkdir: {}, mv: {}, chmod: {}, pwd: {}, cd: {},
+  wc: {}, ssh: {}, quit: {}, exit: {}, logout: {}, help: {}, clear: {},
+};
+
+function checkUnsupportedFlags(cmd, args) {
+  const supported = SUPPORTED_FLAGS[cmd];
+  if (supported === undefined) return null; // unknown command, let it fall through
+
+  for (const arg of args) {
+    if (!arg.startsWith('-')) continue;
+
+    if (arg.startsWith('--')) {
+      // Long flags are never supported
+      return unsupportedMessage(cmd, arg);
+    }
+
+    // Short flags: split combined flags like -la into l, a
+    const chars = arg.slice(1).split('');
+    for (const ch of chars) {
+      if (!supported[ch]) {
+        return unsupportedMessage(cmd, '-' + ch);
+      }
+    }
+  }
+
+  // Special case: chmod with octal notation (e.g. chmod 755 file)
+  if (cmd === 'chmod' && args.length >= 1 && /^\d+$/.test(args[0])) {
+    return unsupportedMessage(cmd, args[0] + ' (octal notation)');
+  }
+
+  return null;
+}
+
+function unsupportedMessage(cmd, flag) {
+  return {
+    stdout: `${cmd} ${flag} — impressive, you know your flags!\nThis one's beyond what we built for the game, though.\nIf you want it to work, the repo could always use a pull request.`,
+    stderr: '',
+    exitCode: 0,
+  };
+}
+
 // Expand wildcards in arguments
 function expandWildcards(args, fs) {
   const expandedArgs = [];
@@ -109,6 +160,13 @@ export function executePipeline(input, fs) {
 
     // Expand wildcards in arguments
     const expandedArgs = expandWildcards(args, fs);
+
+    // Check for unsupported flags before running the command
+    const flagCheck = checkUnsupportedFlags(cmd, expandedArgs);
+    if (flagCheck) {
+      lastResult = flagCheck;
+      break;
+    }
 
     lastResult = commands[cmd](expandedArgs, stdin, fs);
     stdin = lastResult.stdout;

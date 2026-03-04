@@ -162,7 +162,7 @@ $(function() {
 
     if (result.gotoLevel) {
       localStorage.setItem('savedLevel', game.currentLevel);
-      localStorage.setItem('savedUser', 'eve');
+      localStorage.setItem('savedUser', game.currentUser);
       this.clear();
       printLevelHeader(this, game.currentLevel, result.levelTitle);
       printStory(this, result.story);
@@ -171,10 +171,19 @@ $(function() {
   }, {
     greetings: false,
     prompt: () => formatPrompt(game.fs),
-    completion: isMobile ? false : (str) => getCompletions(str, game.fs),
-    wordAutocomplete: false,
+    completion: isMobile ? false : function(word) {
+      return getCompletions(word, this.get_command(), game.fs);
+    },
     completionEscape: false,
     mobileDelete: true,
+    keydown: function(e) {
+      // Ctrl+D = logout/exit (like real bash)
+      if (e.ctrlKey && e.key === 'd') {
+        e.preventDefault();
+        this.exec('exit');
+        return false;
+      }
+    },
     onInit: function() {
       printLevelHeader(this, game.currentLevel, game.getLevelTitle());
       printStory(this, game.getStory());

@@ -457,10 +457,14 @@ stopped you before.
 
 The README probably explains how this works.`,
     filesystem: mergeFilesystem(BASE_FILESYSTEM, {
-      home: { alice: { research: ALICE_RESEARCH_CONTENT } },
+      home: {
+        eve: { '.ssh': { 'id_rsa': '-----BEGIN RSA PRIVATE KEY-----\nStolen from Alice\n-----END RSA PRIVATE KEY-----' } },
+        alice: { research: ALICE_RESEARCH_CONTENT },
+      },
     }),
     protectedFiles: PROTECTED_FILES,
     startDir: '/home/alice',
+    startUser: 'alice',
     restrictedDirs: {
       '/home/mallory/.plans': 'mallory',
     },
@@ -518,6 +522,7 @@ Take what you want and get out clean. mv moves or renames files.
 rm removes files permanently. No traces.`,
     filesystem: mergeFilesystem(BASE_FILESYSTEM, {
       home: {
+        eve: { '.ssh': { 'id_rsa': '-----BEGIN RSA PRIVATE KEY-----\nStolen from Alice\n-----END RSA PRIVATE KEY-----' } },
         alice: {
           research: {
             ...ALICE_RESEARCH_CONTENT,
@@ -529,6 +534,7 @@ rm removes files permanently. No traces.`,
     }),
     protectedFiles: PROTECTED_FILES,
     startDir: '/home/alice',
+    startUser: 'alice',
     restrictedDirs: {
       '/home/mallory/.plans': 'mallory',
     },
@@ -548,7 +554,7 @@ rm removes files permanently. No traces.`,
       {
         objective: 'Log out of Alice\'s account.',
         hints: [
-          'Type: quit',
+          'Type exit, logout, or quit to close the SSH session',
         ],
         winCondition: (cmd, output, fs) => fs.currentUser === 'eve',
       },
