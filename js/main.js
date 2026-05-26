@@ -140,6 +140,9 @@ $(function() {
 
     if (result.advanced) {
       this.echo('[[;#0f0;]✓ Nice work!]');
+      if (result.successExplanation) {
+        this.echo(result.successExplanation);
+      }
 
       if (result.won) {
         printWinScreen(this);

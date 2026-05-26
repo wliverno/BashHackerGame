@@ -1,4 +1,5 @@
 import { levels } from '../gameplay/levels.js';
+import { explainSuccessfulCommand } from '../gameplay/command-explanations.js';
 import { createFilesystem } from '../engine/filesystem.js';
 import { executePipeline } from '../engine/executor.js';
 
@@ -147,6 +148,7 @@ export function createGame({ startLevel = 0, startUser = 'eve' } = {}) {
 
       if (step.winCondition(input, result.output, fs)) {
         result.advanced = true;
+        result.successExplanation = step.explanation || explainSuccessfulCommand(input);
         hintIndex = 0;
 
         if (currentSubStep < level.subSteps.length - 1) {

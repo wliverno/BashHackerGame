@@ -209,14 +209,41 @@ describe('game.runCommand', () => {
   test('advances substep when win condition met', () => {
     const game = createGame();
     expect(game.currentSubStep).toBe(0);
-    game.runCommand('pwd');
+    const result = game.runCommand('pwd');
     expect(game.currentSubStep).toBe(1);
+    expect(result.successExplanation).toContain('`pwd`');
+    expect(result.successExplanation).toContain('showed your current directory.');
   });
 
   test('does not advance when win condition not met', () => {
     const game = createGame();
-    game.runCommand('echo hello');
+    const result = game.runCommand('echo hello');
     expect(game.currentSubStep).toBe(0);
+    expect(result.successExplanation).toBeUndefined();
+  });
+
+  test('explains grep plus redirect after successful objective', () => {
+    const game = createGame({ startLevel: 11 });
+    const result = game.runCommand('grep mallory /var/log/access.log > evidence/access_proof.txt');
+
+    expect(result.advanced).toBe(true);
+    expect(result.successExplanation).toContain('`grep mallory /var/log/access.log`');
+    expect(result.successExplanation).toContain('searched for all lines containing "mallory".');
+    expect(result.successExplanation).toContain('`>`');
+    expect(result.successExplanation).toContain('redirected the results into `evidence/access_proof.txt`');
+  });
+
+  test('explains each stage of a successful pipeline', () => {
+    const game = createGame({ startLevel: 9 });
+    const result = game.runCommand('cat sensor_readings.csv | wc');
+
+    expect(result.advanced).toBe(true);
+    expect(result.successExplanation).toContain('`cat sensor_readings.csv`');
+    expect(result.successExplanation).toContain('printed the contents of `sensor_readings.csv`.');
+    expect(result.successExplanation).toContain('`|`');
+    expect(result.successExplanation).toContain('sent the output into the next command.');
+    expect(result.successExplanation).toContain('`wc`');
+    expect(result.successExplanation).toContain('counted lines, words, and characters.');
   });
 
   test('advances to next level when all substeps complete', () => {
