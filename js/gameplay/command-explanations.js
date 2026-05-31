@@ -127,10 +127,28 @@ function describeSort(args) {
   return 'sorted the lines alphabetically.';
 }
 
+function describeWc(args) {
+  const { flags } = splitFlags(args);
+  const flagText = flags.join('');
+  if (flagText.includes('l') && !flagText.includes('w') && !flagText.includes('c')) {
+    return 'counted lines.';
+  }
+  if (flagText.includes('w') && !flagText.includes('l') && !flagText.includes('c')) {
+    return 'counted words.';
+  }
+  if (flagText.includes('c') && !flagText.includes('l') && !flagText.includes('w')) {
+    return 'counted characters.';
+  }
+  return 'counted lines, words, and characters.';
+}
+
 function describeSsh(args) {
   const target = args[0] || 'the remote host';
-  const user = target.includes('@') ? target.split('@')[0] : target;
-  return `started a remote shell as \`${user}\`.`;
+  if (target.includes('@')) {
+    const [user, host] = target.split('@');
+    return `started a remote shell as \`${user}\` on \`${host}\`.`;
+  }
+  return `started a remote shell on \`${target}\`.`;
 }
 
 function describeCommand({ cmd, args }) {
@@ -164,7 +182,7 @@ function describeCommand({ cmd, args }) {
     case 'logout':
       return 'ended the current shell session.';
     case 'wc':
-      return 'counted lines, words, and characters.';
+      return describeWc(args);
     case 'sort':
       return describeSort(args);
     case 'grep':
